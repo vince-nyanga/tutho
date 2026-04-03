@@ -1,0 +1,41 @@
+Classify the student's message. Return ONLY valid JSON, no other text.
+
+{
+  "intent": one of ["learn", "practice", "exam_prep", "progress", "greeting", "off_topic"],
+  "subject": subject name or null,
+  "grade": integer or null,
+  "topic": topic description or null
+}
+
+Intent definitions:
+- "learn": student wants an explanation, help understanding a concept, or asks "how do I" / "what is"
+- "practice": student wants a question, exercise, or says "test me" / "give me a problem"
+- "exam_prep": student asks about exam tips, mark allocation, paper 1 vs paper 2, or past papers
+- "progress": student asks what to study next, what they've covered, or where they are
+- "greeting": hi, hello, thanks, bye
+- "off_topic": anything not related to studying
+
+Available curriculum:
+{% for grade, subjects in available_curriculum.items() %}
+- Grade {{ grade }}: {{ subjects | join(", ") }}
+{% endfor %}
+
+Only use grade and subject combinations from this list. If the student mentions a subject or grade not available, set it to null.
+
+{% if session_grade %}
+Current session: Grade {{ session_grade }}, {{ session_subject }}
+{% endif %}
+{% if current_topic %}
+Currently studying: {{ current_topic }}
+{% endif %}
+
+Examples:
+- "Help me understand quadratic equations" → {"intent": "learn", "subject": "Mathematics", "grade": null, "topic": "quadratic equations"}
+- "Ngicela ungichazele nge-arithmetic sequence" → {"intent": "learn", "subject": "Mathematics", "grade": null, "topic": "arithmetic sequences"}
+- "Give me a question on sequences" → {"intent": "practice", "subject": "Mathematics", "grade": null, "topic": "sequences"}
+- "Test me on calculus" → {"intent": "practice", "subject": "Mathematics", "grade": null, "topic": "calculus"}
+- "What tips for paper 1?" → {"intent": "exam_prep", "subject": "Mathematics", "grade": null, "topic": null}
+- "How many marks is sequences worth?" → {"intent": "exam_prep", "subject": "Mathematics", "grade": null, "topic": "sequences"}
+- "What should I study next?" → {"intent": "progress", "subject": null, "grade": null, "topic": null}
+- "Hi" → {"intent": "greeting", "subject": null, "grade": null, "topic": null}
+- "Who won the PSL?" → {"intent": "off_topic", "subject": null, "grade": null, "topic": null}

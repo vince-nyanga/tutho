@@ -15,10 +15,11 @@ class TopicResult:
 
 
 class CurriculumStore:
-    def __init(self, curriculum_dir: str = "curriculum"):
+    def __init__(self, curriculum_dir: str = "curriculum"):
         self._nodes: dict[str, dict] = {}
         self._kcs: dict[str, dict] = {}
         self._data: list[dict] = []
+        self.load(curriculum_dir)
 
 
     def load(self, curriculum_dir: str):
@@ -90,6 +91,17 @@ class CurriculumStore:
 
     def get_kc_by_code(self, code: str) -> dict | None:
         return self._kcs.get(code)
+
+    def get_available_curriculum(self) -> dict[int, list[str]]:
+        mapping = {}
+        for data in self._data:
+            grade = data["grade"]
+            subject = data["subject"]
+            if grade not in mapping:
+                mapping[grade] = []
+            if subject not in mapping[grade]:
+                mapping[grade].append(subject)
+        return mapping
 
 
     def _index_nodes(self, nodes: list[dict], parent_name: str | None = None):
