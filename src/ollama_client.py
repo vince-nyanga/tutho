@@ -7,13 +7,15 @@ class OllamaClient:
         self.model = model
         self.client = AsyncOpenAI(base_url=base_url, api_key="ollama")
 
-    async def classify(self, system_prompt: str, user_message: str) -> dict:
+    async def classify(self, system_prompt: str, user_message: str, history: list[dict] = None) -> dict:
+        messages = [{"role": "system", "content": system_prompt}]
+        if history:
+            messages.extend(history[-4:])
+
+        messages.append({"role": "user", "content": user_message})
         response = await self.client.chat.completions.create(
             model=self.model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_message}
-            ],
+            messages=messages,
             temperature=0,
             response_format={"type": "json_object"}
         )

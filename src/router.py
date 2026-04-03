@@ -3,6 +3,9 @@ from jinja2 import Environment, FileSystemLoader
 from src.ollama_client import OllamaClient
 from src.tools.curriculum import CurriculumStore
 from src.tools.definitions import create_learning_registry
+from logging import getLogger
+
+logger = getLogger(__name__)
 
 class Router:
     def __init__(self, client: OllamaClient, curriculum: CurriculumStore):
@@ -11,8 +14,10 @@ class Router:
         self.templates = Environment(loader=FileSystemLoader("src/prompts"))
         self.learning_registry = create_learning_registry(curriculum)
 
-    async def handle_message(self, message: str, session: dict) -> str:
-        classification = await self._classify(message, session)
+    async def handle_message(self, message: str, session: dict, history: list[dict] = None) -> str:
+        if history is None:
+            history = []
+        classification = await self._classify(message, session, history)
 
         if not classification.get("grade") and session.get("grade"):
             classification["grade"] = session["grade"]
@@ -23,9 +28,11 @@ class Router:
 
         match classification["intent"]:
             case "learn":
-                return await self._handle_learn(message, classification, session)
+                return await self._handle_learn(message, classification, session, history)
             case "practice":
-                return await self._handle_practice(message, classification, session)
+                return await self._handle_learn(message, classification, session, history)
+            case "follow_up":
+                return await self._handle_learn(message, classification, session, history)
             case "exam_prep":
                 return await self._handle_exam_prep(message, classification, session)
             case "progress":
@@ -38,7 +45,7 @@ class Router:
                 return await self._handle_greeting(message, classification, session)
 
 
-    async def _classify(self, message: str, session: dict) -> dict:
+    async def _classify(self, message: str, session: dict, history: list[dict] = None) -> dict:
         template = self.templates.get_template("classifier.j2")
         prompt = template.render(
             session_grade = session.get("grade"),
@@ -47,10 +54,14 @@ class Router:
             available_curriculum=self.curriculum.get_available_curriculum(),
         )
 
-        return await self.client.classify(prompt, message)
+        return await self.client.classify(prompt, message, history)
 
-    async def _handle_learn(self, message: str, classification: dict, session: dict) -> str:
+    async def _handle_learn(self, message: str, classification: dict, session: dict, history: list[dict] = None) -> str:
         topic = None
+
+        logger.info(f"Classification: {classification}")
+        logger.info(f"Language: {session.get('language')}")
+        logger.info(f"Language Name: {session.get('language_name')}")
 
         if classification.get("topic") and classification.get("grade") and classification.get("subject"):
             topic = self.curriculum.get_topic(
@@ -70,7 +81,7 @@ class Router:
 
         tools = self.learning_registry.get_tools()
 
-        messages = [{"role": "user", "content": message}]
+        messages = [*history, {"role": "user", "content": message}]
 
         response = await self.client.chat_with_tools(system_prompt, messages, tools)
 
@@ -88,11 +99,23 @@ class Router:
     async def _handle_progress(self, message: str, classification: dict, session: dict) -> str:
         pass
 
-    async def _handle_greeting(self, message: str, session: dict) -> str:
-        pass
+    async def _handle_greeting(self, message: str, classification: dict, session: dict) -> str:
+        template = self.templates.get_template("greeting.j2")
+        system_prompt = template.render(
+            session_grade=session.get("grade"),
+            session_subject=session.get("subject"),
+        )
+        response = await self.client.chat_with_tools(system_prompt, [{"role": "user", "content": message}], tools=[])
+        return response.content
 
-    async def _handle_off_topic(self, message: str, session: dict) -> str:
-        pass
+    async def _handle_off_topic(self, message: str,classification: dict, session: dict) -> str:
+        template = self.templates.get_template("off_topic.j2")
+        system_prompt = template.render(
+            session_grade=session.get("grade"),
+            session_subject=session.get("subject"),
+        )
+        response = await self.client.chat_with_tools(system_prompt, [{"role": "user", "content": message}], tools=[])
+        return response.content
 
     async def _execute_tool_loop(self, response, system_prompt: str, messages: list[dict], tools: list[dict]) -> str:
         messages.append({

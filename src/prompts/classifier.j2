@@ -14,6 +14,7 @@ Intent definitions:
 - "progress": student asks what to study next, what they've covered, or where they are
 - "greeting": hi, hello, thanks, bye
 - "off_topic": anything not related to studying
+- "follow_up": student is responding to a question you asked, giving an answer, showing working, or continuing the current conversation
 
 Available curriculum:
 {% for grade, subjects in available_curriculum.items() %}
@@ -39,3 +40,4 @@ Examples:
 - "What should I study next?" → {"intent": "progress", "subject": null, "grade": null, "topic": null}
 - "Hi" → {"intent": "greeting", "subject": null, "grade": null, "topic": null}
 - "Who won the PSL?" → {"intent": "off_topic", "subject": null, "grade": null, "topic": null}
+- "a = 5 and d = 3 so T20 = 5 + 19(3) = 62" → {"intent": "follow_up", "subject": null, "grade": null, "topic": null}
