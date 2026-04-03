@@ -1,0 +1,773 @@
+{
+  "curriculum": "CAPS",
+  "curriculum_version": "2024.1",
+  "grade": 12,
+  "subject": "Mathematics",
+  "nodes": [
+    {
+      "code": "CAPS-M12-SEQ",
+      "name": "Number Patterns, Sequences and Series",
+      "level": "unit",
+      "sort_order": 1,
+      "exam_weight": 0.1,
+      "sba_relevant": true,
+      "prerequisites": [],
+      "children": [
+        {
+          "code": "CAPS-M12-SEQ-SERIES",
+          "name": "Sequences, Series and Sigma Notation",
+          "level": "topic",
+          "sort_order": 1,
+          "exam_weight": null,
+          "sba_relevant": true,
+          "prerequisites": [],
+          "knowledge_components": [
+            {
+              "code": "caps-m12-seq-series-01",
+              "description": "Work with arithmetic and geometric sequences, find nth terms and sums",
+              "bloom_ceiling": "apply",
+              "slip_rate": 0.1,
+              "learning_rate": 0.15,
+              "exam_weight": 0.0,
+              "kc_prerequisites": [],
+              "curriculum_statement": "Number patterns including arithmetic and geometric sequences and series",
+              "cognitive_levels": [
+                "K",
+                "R"
+              ],
+              "common_misconceptions": [
+                "Confusing arithmetic (constant difference) with geometric (constant ratio)",
+                "Using wrong formula for sum vs nth term"
+              ],
+              "teaching_notes": "ARITHMETIC SEQUENCES have a constant common difference d. The nth term formula is Tn = a + (n-1)d, where a is the first term. GEOMETRIC SEQUENCES have a constant common ratio r. The nth term formula is Tn = ar^(n-1). IDENTIFYING THE TYPE: Calculate T2 - T1 and T3 - T2. If equal, arithmetic (d = that value). If not, calculate T2/T1 and T3/T2. If equal, geometric (r = that value). WORKED EXAMPLE 1 (Arithmetic): Given 5, 8, 11, 14... Find T20. d = 8 - 5 = 3, a = 5. T20 = 5 + 19(3) = 62. WORKED EXAMPLE 2 (Geometric): Given 2, 6, 18, 54... Find T8. r = 6/2 = 3, a = 2. T8 = 2(3)^7 = 4374. WORKED EXAMPLE 3 (Two terms given): T3 = 12 and T7 = 24. Equations: a + 2d = 12 and a + 6d = 24. Subtract: 4d = 12, d = 3. Substituting: a = 6. WORKED EXAMPLE 4 (Negative ratio): 4, -8, 16, -32... r = -2. T6 = 4(-2)^5 = -128. Note alternating signs when r < 0. COMMON ERRORS: (1) Mixing up Tn (one term) with Sn (sum of terms). (2) Using n instead of (n-1) in the geometric formula. (3) Not checking whether the sequence is arithmetic or geometric before choosing a formula. NSC EXAM TIPS: Sequences appear in Paper 1 (4-6 marks). The NSC frequently gives two terms and asks for simultaneous equations to find a and d (or r). Always show substitution steps. LINK TO OTHER TOPICS: Arithmetic sequences connect to linear functions (d is the gradient). Geometric sequences connect to exponential functions (r is the base). Essential for series and sigma notation that follows."
+            },
+            {
+              "code": "caps-m12-seq-series-02",
+              "description": "Read, interpret and evaluate sigma notation expressions",
+              "bloom_ceiling": "apply",
+              "slip_rate": 0.1,
+              "learning_rate": 0.15,
+              "exam_weight": 0.0,
+              "kc_prerequisites": [
+                "caps-m12-seq-series-01"
+              ],
+              "curriculum_statement": "Sigma notation",
+              "cognitive_levels": [
+                "K",
+                "R"
+              ],
+              "common_misconceptions": [
+                "Not correctly identifying the general term",
+                "Errors with the index bounds"
+              ],
+              "teaching_notes": "SIGMA NOTATION is a compact way to write a sum. The symbol Sigma has three parts: the general term, the lower bound (start), and the upper bound (stop). HOW TO READ: Sigma from k=1 to n of Tk means substitute k = 1, 2, 3... to n and add the results. WORKED EXAMPLE 1 (Expanding): Sigma from k=1 to 4 of (3k - 1). k=1: 2, k=2: 5, k=3: 8, k=4: 11. Sum = 26. WORKED EXAMPLE 2 (Writing in sigma form): 4 + 7 + 10 + 13 + 16. Arithmetic with a = 4, d = 3. General term Tk = 3k + 1. Write as Sigma from k=1 to 5 of (3k + 1). Verify: k=1 gives 4, k=5 gives 16. Correct. WORKED EXAMPLE 3 (Geometric): 3 + 6 + 12 + 24 + 48. a = 3, r = 2. Tk = 3(2)^(k-1). Sigma from k=1 to 5 of 3(2)^(k-1). WORKED EXAMPLE 4 (Starting at k=0): Sigma from k=0 to 3 of 2^k = 1 + 2 + 4 + 8 = 15. When lower bound is k=0, the first substitution uses 0, not 1. COMMON ERRORS: (1) Wrong index bounds -- always verify first and last terms by substitution. (2) Miscounting terms: from k=1 to n gives n terms, from k=0 to n gives n+1 terms. (3) Not finding the correct general term before writing sigma form. SPLITTING PROPERTY: Sigma from k=1 to n = Sigma from k=1 to m + Sigma from k=m+1 to n. Useful when asked for the sum from the 6th to 15th term. NSC EXAM TIPS: Sigma notation in Paper 1 (3-5 marks). The NSC asks you to expand and evaluate sigma expressions, or convert a series into sigma notation. LINK TO OTHER TOPICS: Sigma notation expresses arithmetic and geometric series, connecting directly to the sum formulae Sn."
+            },
+            {
+              "code": "caps-m12-seq-series-03",
+              "description": "Derive and apply sum formulae for arithmetic and geometric series",
+              "bloom_ceiling": "apply",
+              "slip_rate": 0.1,
+              "learning_rate": 0.15,
+              "exam_weight": 0.0,
+              "kc_prerequisites": [
+                "caps-m12-seq-series-02"
+              ],
+              "curriculum_statement": "Derivation and application of the formulae for the sum of arithmetic and geometric series: Sₙ = n/2[2a + (n-1)d], Sₙ = a(rⁿ - 1)/(r - 1)",
+              "cognitive_levels": [
+                "R",
+                "C"
+              ],
+              "common_misconceptions": [
+                "Using the wrong sum formula (arithmetic vs geometric)",
+                "Not checking if |r| < 1 or |r| > 1"
+              ],
+              "teaching_notes": "ARITHMETIC SUM: Sn = n/2[2a + (n-1)d] or Sn = n/2(first + last). GEOMETRIC SUM: Sn = a(r^n - 1)/(r - 1) or Sn = a(1 - r^n)/(1 - r). Both forms are equivalent. DERIVATION (Arithmetic): Write Sn forwards and backwards, add: 2Sn = n(a + l), so Sn = n/2(a + l). DERIVATION (Geometric): Sn = a + ar + ... + ar^(n-1). Multiply by r, subtract: Sn(1 - r) = a(1 - r^n). WORKED EXAMPLE 1 (Arithmetic): First 20 terms of 3 + 7 + 11 + 15... a = 3, d = 4. S20 = 20/2[2(3) + 19(4)] = 10(82) = 820. WORKED EXAMPLE 2 (Geometric): S8 for 2 + 6 + 18... a = 2, r = 3. S8 = 2(3^8 - 1)/(3 - 1) = 2(6560)/2 = 6560. WORKED EXAMPLE 3 (Finding n): Arithmetic with a = 5, d = 3, Sn = 440. n/2[10 + 3(n-1)] = 440 gives 3n^2 + 7n - 880 = 0. Quadratic formula: n = 16 (reject negative). WORKED EXAMPLE 4: Tn = Sn - S(n-1). If S5 = 75 and S4 = 60, then T5 = 15. Essential when given Sn as a formula. COMMON ERRORS: (1) Using arithmetic formula for geometric or vice versa. Always identify d or r first. (2) n must be a positive integer. (3) Not using Tn = Sn - S(n-1) when given Sn formula. NSC EXAM TIPS: Paper 1 (5-8 marks). The arithmetic sum derivation is commonly examined (4 marks). The NSC also asks 'how many terms for Sn > value', requiring quadratic inequality solving. LINK TO OTHER TOPICS: Geometric sum leads to sum to infinity. Arithmetic sum connects to integration concepts."
+            },
+            {
+              "code": "caps-m12-seq-series-04",
+              "description": "Calculate the sum to infinity of a convergent geometric series",
+              "bloom_ceiling": "apply",
+              "slip_rate": 0.1,
+              "learning_rate": 0.15,
+              "exam_weight": 0.0,
+              "kc_prerequisites": [
+                "caps-m12-seq-series-03"
+              ],
+              "curriculum_statement": "Sum to infinity of a convergent geometric series: S∞ = a/(1-r) for |r| < 1",
+              "cognitive_levels": [
+                "R",
+                "P"
+              ],
+              "common_misconceptions": [
+                "Applying sum to infinity when |r| ≥ 1",
+                "Not recognising when a series diverges"
+              ],
+              "teaching_notes": "CONVERGENCE: A geometric series converges only when |r| < 1. Formula: S_inf = a/(1 - r). DERIVATION: From Sn = a(1 - r^n)/(1 - r), as n -> infinity with |r| < 1, r^n -> 0, giving S_inf = a/(1 - r). WORKED EXAMPLE 1: 8 + 4 + 2 + 1 + ... a = 8, r = 1/2. |1/2| < 1, so S_inf = 8/(1 - 1/2) = 16. WORKED EXAMPLE 2 (Recurring decimals): 0.272727... = 27/100 + 27/10000 + ... a = 27/100, r = 1/100. S_inf = (27/100)/(99/100) = 27/99 = 3/11. WORKED EXAMPLE 3 (Finding r): a = 12, S_inf = 36. 36 = 12/(1 - r), so 1 - r = 1/3, r = 2/3. Verify: |2/3| < 1. WORKED EXAMPLE 4 (Divergence): 3 + 6 + 12... r = 2. |2| >= 1, so series DIVERGES. State: S_inf does not exist. WORKED EXAMPLE 5 (Negative ratio): 18 - 6 + 2 - 2/3 + ... r = -1/3. |r| = 1/3 < 1. S_inf = 18/(1 - (-1/3)) = 18/(4/3) = 13.5. COMMON ERRORS: (1) Applying S_inf when |r| >= 1. Always check convergence first. (2) Sign errors with negative r: 1 - (-1/3) = 4/3, not 2/3. (3) Confusing S_inf with Sn. NSC EXAM TIPS: Paper 1 (4-6 marks). Common questions: recurring decimal conversion, finding a or r given S_inf, and finding values of x for convergence (set |r| < 1 and solve inequality). For example, if r = (x-1)/2, then |(x-1)/2| < 1 gives -1 < x < 3. LINK TO OTHER TOPICS: Convergence connects to limits in calculus. Sum to infinity is used in financial perpetuity models."
+            }
+          ],
+          "children": [],
+          "term": 1
+        }
+      ]
+    },
+    {
+      "code": "CAPS-M12-FIN",
+      "name": "Finance, Growth and Decay",
+      "level": "unit",
+      "sort_order": 2,
+      "exam_weight": 0.1,
+      "sba_relevant": true,
+      "prerequisites": [],
+      "children": [
+        {
+          "code": "CAPS-M12-FIN-ANN",
+          "name": "Annuities and Amortisation",
+          "level": "topic",
+          "sort_order": 1,
+          "exam_weight": null,
+          "sba_relevant": true,
+          "prerequisites": [],
+          "knowledge_components": [
+            {
+              "code": "caps-m12-fin-ann-01",
+              "description": "Apply future value and present value annuity formulae to financial problems",
+              "bloom_ceiling": "apply",
+              "slip_rate": 0.1,
+              "learning_rate": 0.15,
+              "exam_weight": 0.0,
+              "kc_prerequisites": [],
+              "curriculum_statement": "Solve problems involving present and future value annuities. Use of logarithms to calculate the value of n, the time period. Derive and use: A = P(1+i)^n, F = x[(1+i)^n - 1]/i, P = x[1-(1+i)^(-n)]/i",
+              "cognitive_levels": [
+                "R",
+                "C"
+              ],
+              "common_misconceptions": [
+                "Confusing future value annuity with present value annuity",
+                "Not adjusting i and n for monthly/quarterly compounding",
+                "Misunderstanding when payments start (beginning vs end of period)"
+              ],
+              "teaching_notes": "TWO ANNUITY FORMULAE: Future Value Annuity (saving/investing regular payments): F = x[(1+i)^n - 1]/i. Present Value Annuity (paying off a loan with regular payments): P = x[1 - (1+i)^(-n)]/i. CRITICAL FIRST STEP: Always adjust i and n to match the compounding period. If compounded monthly: i = annual rate / 12, n = years x 12. If quarterly: i = annual rate / 4, n = years x 4. WORKED EXAMPLE 1 (Future Value -- Saving): You save R500 per month for 5 years at 8% p.a. compounded monthly. Step 1: i = 0.08/12 = 0.00666667, n = 5 x 12 = 60. Step 2: F = 500[(1.00666667)^60 - 1]/0.00666667. Step 3: (1.00666667)^60 = 1.48985 (use calculator). Step 4: F = 500[1.48985 - 1]/0.00666667 = 500[0.48985/0.00666667] = 500(73.4769) = R36 738.45. WORKED EXAMPLE 2 (Present Value -- Loan repayment): Find the monthly payment on a R200 000 home loan at 10% p.a. compounded monthly over 20 years. Step 1: i = 0.10/12 = 0.008333, n = 240. Step 2: Rearrange P = x[1 - (1+i)^(-n)]/i to get x = Pi/[1 - (1+i)^(-n)]. Step 3: x = 200000(0.008333)/[1 - (1.008333)^(-240)]. Step 4: (1.008333)^(-240) = 0.13671. Step 5: x = 1666.67/[1 - 0.13671] = 1666.67/0.86329 = R1930.61 per month. WORKED EXAMPLE 3 (Finding n using logarithms): How many months to save R100 000 if you deposit R1500/month at 9% p.a. compounded monthly? F = x[(1+i)^n - 1]/i, so 100000 = 1500[(1.0075)^n - 1]/0.0075. Rearrange: (1.0075)^n - 1 = 100000(0.0075)/1500 = 0.5. So (1.0075)^n = 1.5. Take log of both sides: n = log(1.5)/log(1.0075) = 0.17609/0.003247 = 54.24. Since n must be a whole number of months, round UP to n = 55 months. TIMELINE METHOD: Always draw a timeline showing when payments begin and end. For a future value annuity, payments are typically at the END of each period, and F is calculated at the time of the LAST payment. For present value annuity, payments begin ONE period after the loan is taken. If the first payment is IMMEDIATELY, this changes the calculation (annuity due, though not commonly tested in NSC). COMMON ERRORS: (1) Not converting the annual rate and time to match the compounding period. This is the single most common mistake. (2) Using the future value formula when the question is about a loan (present value), or vice versa. Ask: am I saving up to a future amount, or paying off a present amount? (3) Not rounding n UP to the next whole number when finding time periods. (4) Forgetting to state the total interest paid = total payments - original loan. CALCULATOR TIPS: On the CASIO fx-82ZA, compute (1+i)^n using the power key. Store intermediate results in memory (STO, A) to avoid rounding errors. NSC EXAM TIPS: Finance questions appear in Paper 1 and are worth 15-20 marks. The NSC frequently asks multi-step problems: calculate the loan balance after some years of payments, then recalculate with a changed interest rate. The formula sheet is provided, but you must know WHICH formula to use and HOW to adjust i and n. LINK TO OTHER TOPICS: The annuity formulae are derived from geometric series (sum formula). Logarithms from the functions chapter are essential for finding n."
+            },
+            {
+              "code": "caps-m12-fin-ann-02",
+              "description": "Compare financial options and identify fraudulent schemes",
+              "bloom_ceiling": "analyse",
+              "slip_rate": 0.1,
+              "learning_rate": 0.15,
+              "exam_weight": 0.0,
+              "kc_prerequisites": [
+                "caps-m12-fin-ann-01"
+              ],
+              "curriculum_statement": "Critically analyse investment and loan options and make informed decisions (including pyramid schemes)",
+              "cognitive_levels": [
+                "C",
+                "P"
+              ],
+              "common_misconceptions": [
+                "Not understanding that unrealistic returns signal fraud",
+                "Not using a timeline for multi-period problems"
+              ],
+              "teaching_notes": "EFFECTIVE ANNUAL RATE (EAR): To compare investments with different compounding periods, convert to the effective annual rate. Formula: EAR = (1 + i_nom/k)^k - 1, where i_nom is the nominal annual rate and k is the number of compounding periods per year. WORKED EXAMPLE 1 (Comparing investments): Option A: R10 000 at 9% p.a. compounded monthly for 5 years. EAR_A = (1 + 0.09/12)^12 - 1 = (1.0075)^12 - 1 = 0.09381 = 9.38%. A = 10000(1.0075)^60 = R15 656.81. Option B: R10 000 at 8.5% p.a. compounded daily for 5 years. EAR_B = (1 + 0.085/365)^365 - 1 = 0.08872 = 8.87%. A = 10000(1 + 0.085/365)^1825 = R15 287.16. Conclusion: Option A yields R369.65 more, confirmed by its higher EAR (9.38% vs 8.87%). WORKED EXAMPLE 2 (Sinking fund): A machine costs R500 000 and depreciates at 15% p.a. on reducing balance. A sinking fund earns 10% p.a. compounded monthly. Find the monthly deposit needed to replace the machine after 8 years. Step 1: Book value after 8 years: BV = 500000(1 - 0.15)^8 = 500000(0.85)^8 = R136 077.88. Step 2: Cost of new machine in 8 years (assume 6% inflation): New = 500000(1.06)^8 = R796 924.47. Step 3: Amount needed in sinking fund: 796924.47 - 136077.88 (scrap value) = R660 846.59. Step 4: Use future value annuity: F = x[(1+i)^n - 1]/i. 660846.59 = x[(1 + 0.10/12)^96 - 1]/(0.10/12). Solve for x = R4 526.81 per month. PYRAMID SCHEME IDENTIFICATION: Red flags include (1) guaranteed returns significantly above market rate (SA prime rate is around 11-12%, so returns above 15-20% p.a. are suspicious), (2) income primarily from recruiting new members rather than selling actual products, (3) no registration with the Financial Sector Conduct Authority (FSCA), (4) pressure to invest quickly or secretly. In the NSC, you may be asked to explain why certain returns are unrealistic or to calculate what a legitimate investment would actually yield for comparison. WORKED EXAMPLE 3 (Loan balance after partial payment): A R300 000 loan at 12% p.a. compounded monthly is repaid over 20 years. After 5 years of payments, what is the outstanding balance? Step 1: Monthly payment x = 300000(0.01)/[1 - (1.01)^(-240)] = R3 303.68. Step 2: Outstanding balance = present value of remaining 180 payments: P = 3303.68[1 - (1.01)^(-180)]/0.01 = R274 313.27. Note: after 5 years of payments (60 x R3303.68 = R198 220.80 paid), the balance has only dropped from R300 000 to R274 313. This is because early payments are mostly interest. COMMON ERRORS: (1) Comparing nominal rates with different compounding periods without converting to EAR. (2) Forgetting to account for scrap value in sinking fund problems. (3) Not considering inflation when calculating future replacement cost. (4) Assuming total interest paid = rate x principal x time (this is simple interest logic, not compound). NSC EXAM TIPS: The critical analysis question is typically worth 6-10 marks and often combines depreciation, sinking fund, and annuity calculations in a single multi-part question. Always show your timeline and label all cash flows clearly. LINK TO OTHER TOPICS: Effective rate calculation uses the compound interest formula from Grade 11. Depreciation connects to the exponential decay function y = a(1-r)^x."
+            }
+          ],
+          "children": [],
+          "term": 2
+        }
+      ]
+    },
+    {
+      "code": "CAPS-M12-FUN",
+      "name": "Functions",
+      "level": "unit",
+      "sort_order": 3,
+      "exam_weight": 0.1,
+      "sba_relevant": true,
+      "prerequisites": [],
+      "children": [
+        {
+          "code": "CAPS-M12-FUN-INV",
+          "name": "Inverse Functions",
+          "level": "topic",
+          "sort_order": 1,
+          "exam_weight": null,
+          "sba_relevant": true,
+          "prerequisites": [],
+          "knowledge_components": [
+            {
+              "code": "caps-m12-fun-inv-01",
+              "description": "Understand inverse functions, domain restrictions, and the horizontal line test",
+              "bloom_ceiling": "understand",
+              "slip_rate": 0.1,
+              "learning_rate": 0.15,
+              "exam_weight": 0.0,
+              "kc_prerequisites": [],
+              "curriculum_statement": "Definition of a function. General concept of the inverse of a function and how the domain may need to be restricted to ensure the inverse is a function.",
+              "cognitive_levels": [
+                "K",
+                "R"
+              ],
+              "common_misconceptions": [
+                "Confusing inverse function f⁻¹ with reciprocal 1/f(x)",
+                "Not restricting domain to ensure the inverse is a function"
+              ],
+              "teaching_notes": "DEFINITION: The inverse of a function f, written f^(-1), reverses the mapping: if f(a) = b, then f^(-1)(b) = a. CRITICAL: f^(-1)(x) does NOT mean 1/f(x). The superscript -1 denotes the inverse function, not a reciprocal. METHOD TO FIND THE INVERSE: Step 1: Write y = f(x). Step 2: Swap x and y (interchange their roles). Step 3: Solve for y. Step 4: Write y = f^(-1)(x). WORKED EXAMPLE 1 (Linear): f(x) = 2x + 3. Step 1: y = 2x + 3. Step 2: x = 2y + 3. Step 3: 2y = x - 3, so y = (x - 3)/2. Step 4: f^(-1)(x) = (x - 3)/2. VERIFICATION: f(f^(-1)(x)) = 2((x-3)/2) + 3 = (x - 3) + 3 = x. Also f^(-1)(f(x)) = (2x + 3 - 3)/2 = x. Both compositions give x, confirming the inverse is correct. GRAPHICAL RELATIONSHIP: f and f^(-1) are reflections of each other in the line y = x. This means every point (a, b) on f corresponds to (b, a) on f^(-1). To sketch f^(-1), reflect the graph of f across y = x. HORIZONTAL LINE TEST: A function has an inverse that is also a function ONLY if every horizontal line intersects its graph at most once (the function must be one-to-one). If a horizontal line cuts the graph more than once, the inverse will NOT be a function unless the domain is restricted. WORKED EXAMPLE 2 (Quadratic): f(x) = x^2. Step 1: y = x^2. Step 2: x = y^2. Step 3: y = +/-sqrt(x). This is NOT a function because each x-value gives two y-values. SOLUTION: Restrict the domain. If we use x >= 0, then f^(-1)(x) = sqrt(x). If we use x <= 0, then f^(-1)(x) = -sqrt(x). Each restriction gives a valid inverse function. DOMAIN AND RANGE SWAP: The domain of f becomes the range of f^(-1), and the range of f becomes the domain of f^(-1). For f(x) = x^2 with x >= 0: domain of f is [0, inf), range of f is [0, inf). For f^(-1)(x) = sqrt(x): domain is [0, inf), range is [0, inf). COMMON ERRORS: (1) Writing f^(-1)(x) = 1/f(x). This is wrong. f^(-1) is the inverse function, not the reciprocal. (2) Forgetting to restrict the domain of a quadratic before finding the inverse. Always state x >= 0 or x <= 0. (3) Not verifying the inverse by computing f(f^(-1)(x)) = x. (4) Confusing the reflection line: inverse functions reflect across y = x, NOT y = 0 or x = 0. NSC EXAM TIPS: Inverse functions appear in Paper 1, typically worth 4-8 marks. Questions often give a graph of f and ask you to sketch f^(-1) on the same axes. You must draw and label the line y = x. When domain restriction is needed, the NSC expects you to state it explicitly and explain why. LINK TO OTHER TOPICS: The inverse of y = b^x is y = log_b(x), which leads directly to the logarithm section. The inverse of y = ax^2 connects to the parabola work from Grade 11. Understanding inverses is essential for solving exponential equations using logarithms."
+            },
+            {
+              "code": "caps-m12-fun-inv-02",
+              "description": "Find and sketch inverse graphs for linear, quadratic, and exponential functions",
+              "bloom_ceiling": "analyse",
+              "slip_rate": 0.1,
+              "learning_rate": 0.15,
+              "exam_weight": 0.0,
+              "kc_prerequisites": [
+                "caps-m12-fun-inv-01"
+              ],
+              "curriculum_statement": "Determine and sketch graphs of the inverses of: y = ax + q, y = ax², y = b^x (focus on: characteristics, domain/range, intercepts, axes of symmetry, turning points)",
+              "cognitive_levels": [
+                "R",
+                "C"
+              ],
+              "common_misconceptions": [
+                "Not reflecting across y = x correctly",
+                "Forgetting that y = ax² inverse requires domain restriction (x ≥ 0 or x ≤ 0)"
+              ],
+              "teaching_notes": "CAPS REQUIRES INVERSES OF THREE FUNCTION TYPES. TYPE 1 -- LINEAR y = ax + q: The inverse is always a function (linear functions pass the horizontal line test). Method: swap x and y, solve for y. WORKED EXAMPLE: f(x) = 3x - 2. Swap: x = 3y - 2. Solve: y = (x + 2)/3. So f^(-1)(x) = (x + 2)/3. Key features: f has gradient 3, f^(-1) has gradient 1/3 (the reciprocal). f has y-intercept -2, f^(-1) has x-intercept -2 (the swap). TYPE 2 -- QUADRATIC y = ax^2: The parabola fails the horizontal line test, so restrict the domain first. WORKED EXAMPLE: f(x) = 2x^2, x >= 0. Swap: x = 2y^2. Solve: y^2 = x/2, so y = sqrt(x/2) (take positive root since original domain was x >= 0). f^(-1)(x) = sqrt(x/2). Domain of f^(-1): x >= 0. Range of f^(-1): y >= 0. If we had used x <= 0, then f^(-1)(x) = -sqrt(x/2) with range y <= 0. SKETCHING THE QUADRATIC INVERSE: The right branch (x >= 0) of the parabola reflects to the top branch of the sideways parabola. The left branch (x <= 0) reflects to the bottom branch. You must clearly state which branch and label the restriction. TYPE 3 -- EXPONENTIAL y = b^x: The exponential always passes the horizontal line test (it is one-to-one), so no domain restriction is needed. The inverse is the LOGARITHMIC function. WORKED EXAMPLE: f(x) = 2^x. Swap: x = 2^y. Solve: y = log_2(x). So f^(-1)(x) = log_2(x). Key features of y = log_2(x): passes through (1, 0), vertical asymptote x = 0, domain x > 0, range all reals. It is the reflection of y = 2^x in y = x. SKETCHING ALL INVERSES: Always plot f, f^(-1), and the line y = x on the same set of axes. Label: (1) intercepts of both f and f^(-1), (2) any asymptotes, (3) domain and range of both, (4) turning points if applicable, (5) the line y = x as a dashed line. Points where f and f^(-1) intersect must lie ON the line y = x. COMMON ERRORS: (1) Reflecting the wrong branch of the parabola -- always check which half you restricted to. (2) Not drawing y = x as the mirror line. (3) Forgetting that the exponential inverse is a log function, not another exponential. (4) Not labelling the asymptote of the log graph (x = 0). (5) Writing the inverse of y = 2^x as y = x^2 instead of y = log_2(x). NSC EXAM TIPS: Graph sketching for inverses appears in Paper 1 and is typically worth 6-10 marks. The NSC expects you to sketch both f and f^(-1) on the same axes with y = x. You will lose marks for not labelling intercepts, asymptotes, and domain/range. A common exam question gives the graph of f(x) = ax^2 for x >= 0 and asks for the equation of f^(-1), its sketch, and its domain and range. LINK TO OTHER TOPICS: The exponential-logarithm inverse relationship is the foundation for solving exponential equations and is used extensively in financial mathematics (finding n). The quadratic inverse connects to the concept of square roots and surds."
+            }
+          ],
+          "children": [],
+          "term": 1
+        },
+        {
+          "code": "CAPS-M12-FUN-LOG",
+          "name": "Exponential and Logarithmic Functions",
+          "level": "topic",
+          "sort_order": 2,
+          "exam_weight": null,
+          "sba_relevant": true,
+          "prerequisites": [
+            "CAPS-M12-FUN-INV"
+          ],
+          "knowledge_components": [
+            {
+              "code": "caps-m12-fun-log-01",
+              "description": "Understand logarithms as inverses of exponentials, graph log functions",
+              "bloom_ceiling": "understand",
+              "slip_rate": 0.1,
+              "learning_rate": 0.15,
+              "exam_weight": 0.0,
+              "kc_prerequisites": [],
+              "curriculum_statement": "Revision of the exponential function and the graph of y = b^x. Understand the definition of a logarithm: y = log_b(x) ⟺ x = b^y. Graph of the function y = log_b(x) for b > 0, b ≠ 1.",
+              "cognitive_levels": [
+                "K",
+                "R"
+              ],
+              "common_misconceptions": [
+                "Confusing log_b(x) with ln(x) or log₁₀(x)",
+                "Not understanding that log is the inverse of the exponential"
+              ],
+              "teaching_notes": "DEFINITION: y = log_b(x) means b^y = x. The logarithm answers the question: 'To what power must I raise b to get x?' CONSTRAINTS: b > 0, b != 1, and x > 0. You cannot take the log of zero or a negative number, and the base cannot be 1 or negative. CONVERTING BETWEEN FORMS: Exponential form 2^3 = 8 becomes logarithmic form log_2(8) = 3. Always practice converting both ways. WORKED EXAMPLE 1: log_2(8) = ? Ask: 2 to what power gives 8? 2^3 = 8, so log_2(8) = 3. WORKED EXAMPLE 2: log_3(1/9) = ? Ask: 3 to what power gives 1/9? 3^(-2) = 1/9, so log_3(1/9) = -2. WORKED EXAMPLE 3: log_10(1) = ? Any base to the power 0 gives 1, so log_10(1) = 0. In general, log_b(1) = 0 for any valid base b. WORKED EXAMPLE 4: log_b(b) = ? b^1 = b, so log_b(b) = 1 for any valid base. These two results (log_b(1) = 0 and log_b(b) = 1) are used constantly. GRAPH OF y = log_b(x): The graph always passes through the point (1, 0) because log_b(1) = 0. It has a vertical asymptote at x = 0 (the y-axis). Domain: x > 0. Range: all real numbers. If b > 1, the graph is increasing (rises from left to right). If 0 < b < 1, the graph is decreasing (falls from left to right). The graph of y = log_b(x) is the REFLECTION of y = b^x in the line y = x, because they are inverse functions. SOLVING EXPONENTIAL EQUATIONS USING LOGS: If 3^x = 81, convert to log form: x = log_3(81) = 4. If 5^x = 200, use calculator: x = log(200)/log(5) = 2.301/0.699 = 3.29 (change of base formula). SPECIAL NOTATION: log(x) without a base usually means log_10(x) (common logarithm). ln(x) means log_e(x) (natural logarithm, base e = 2.718...). On the CASIO fx-82ZA calculator, the 'log' button gives log_10, and the 'ln' button gives log_e. COMMON ERRORS: (1) log_b(0) is UNDEFINED -- the graph has an asymptote at x = 0, it never touches or crosses it. (2) log_b(negative) is UNDEFINED -- you cannot take the log of a negative number. (3) Confusing log_b(x) with ln(x) or log_10(x) -- always check the base. (4) Thinking log_b(x+y) = log_b(x) + log_b(y). This is WRONG. The log of a SUM is not the sum of the logs (this is the most common algebraic error with logs). NSC EXAM TIPS: Logarithm questions appear in Paper 1, typically as part of a functions question worth 6-8 marks. The NSC expects you to sketch y = b^x and y = log_b(x) on the same axes with the line y = x. You must label the intercepts, asymptotes, and state domain and range. The NSC also tests conversion between exponential and log form. LINK TO OTHER TOPICS: Logarithms are the inverse of exponential functions (from the inverse functions section). They are essential for finding n in financial mathematics annuity problems. The log laws in the next section build directly on this definition."
+            },
+            {
+              "code": "caps-m12-fun-log-02",
+              "description": "Use logarithmic laws to simplify expressions and solve equations",
+              "bloom_ceiling": "apply",
+              "slip_rate": 0.1,
+              "learning_rate": 0.15,
+              "exam_weight": 0.0,
+              "kc_prerequisites": [
+                "caps-m12-fun-log-01"
+              ],
+              "curriculum_statement": "Apply the logarithmic laws: log_b(AB) = log_b(A) + log_b(B), log_b(A/B) = log_b(A) - log_b(B), log_b(A^n) = n·log_b(A), log_b(A) = log A / log B",
+              "cognitive_levels": [
+                "R",
+                "C"
+              ],
+              "common_misconceptions": [
+                "Trying to apply log laws to sums: log(A+B) ≠ log(A) + log(B)",
+                "Forgetting the change of base formula"
+              ],
+              "teaching_notes": "THREE LOGARITHMIC LAWS: Law 1 (Product): log_b(A x B) = log_b(A) + log_b(B). The log of a product equals the SUM of the logs. Law 2 (Quotient): log_b(A/B) = log_b(A) - log_b(B). The log of a quotient equals the DIFFERENCE of the logs. Law 3 (Power): log_b(A^n) = n x log_b(A). The exponent comes down as a multiplier. CHANGE OF BASE FORMULA: log_a(x) = log(x)/log(a) = ln(x)/ln(a). This converts any log to base 10 or base e for calculator use. WORKED EXAMPLE 1 (Expanding): log_2(8x^3) = log_2(8) + log_2(x^3) = 3 + 3 log_2(x). Steps: use product law to separate 8 and x^3, then use power law to bring down the exponent 3. WORKED EXAMPLE 2 (Simplifying): log 50 + log 2. Use product law: = log(50 x 2) = log(100) = log(10^2) = 2. WORKED EXAMPLE 3 (Simplifying with subtraction): 2 log 3 - log 9. Step 1: 2 log 3 = log(3^2) = log 9. Step 2: log 9 - log 9 = 0. WORKED EXAMPLE 4 (Solving exponential equations): Solve 5^x = 20. Step 1: Take log of both sides: log(5^x) = log(20). Step 2: Use power law: x log(5) = log(20). Step 3: x = log(20)/log(5) = 1.30103/0.69897 = 1.861. WORKED EXAMPLE 5 (Financial mathematics application): How many months for an investment to double at 0.8% per month? (1.008)^n = 2. Take log: n log(1.008) = log(2). n = log(2)/log(1.008) = 0.30103/0.003461 = 86.99. Round up: n = 87 months. WORKED EXAMPLE 6 (Solving log equations): Solve log_3(x) + log_3(x - 2) = 1. Step 1: Use product law: log_3(x(x-2)) = 1. Step 2: Convert to exponential form: x(x-2) = 3^1 = 3. Step 3: x^2 - 2x - 3 = 0. Step 4: (x-3)(x+1) = 0, so x = 3 or x = -1. Step 5: CHECK -- log requires positive arguments. x = -1 makes log_3(-1) undefined. Therefore x = 3 is the only valid solution. CRITICAL COMMON ERROR: log(A + B) does NOT equal log(A) + log(B). There is NO log law for sums or differences inside the log. The laws only work for products, quotients, and powers. This is tested repeatedly in the NSC. Also: log(A x B) does NOT equal log(A) x log(B). CALCULATOR TIPS: On the CASIO fx-82ZA, use the log button for log_10 and ln for log_e. For log_2(8), compute log(8)/log(2) = 0.903/0.301 = 3. Store intermediate values with STO to avoid rounding errors in multi-step problems. NSC EXAM TIPS: Log law questions in Paper 1 are typically worth 4-6 marks. Common question types: simplify a log expression using the laws, solve an exponential equation using logs, or solve a log equation. When solving log equations, always CHECK that your answers give valid (positive) arguments for every log in the original equation. The NSC will include an extraneous solution that must be rejected. LINK TO OTHER TOPICS: Log laws are essential for solving exponential equations in financial mathematics (finding n in annuity problems). The change of base formula connects to the inverse function concept. Log equations also appear in the context of exponential growth and decay models."
+            }
+          ],
+          "children": [],
+          "term": 1
+        },
+        {
+          "code": "CAPS-M12-FUN-POLY",
+          "name": "Polynomial Functions",
+          "level": "topic",
+          "sort_order": 3,
+          "exam_weight": null,
+          "sba_relevant": true,
+          "prerequisites": [],
+          "knowledge_components": [
+            {
+              "code": "caps-m12-fun-poly-01",
+              "description": "Use Remainder and Factor Theorems to factorise cubic polynomials",
+              "bloom_ceiling": "apply",
+              "slip_rate": 0.1,
+              "learning_rate": 0.15,
+              "exam_weight": 0.0,
+              "kc_prerequisites": [],
+              "curriculum_statement": "Factorise third-degree polynomials. Apply the Remainder and Factor Theorems to polynomials of degree at most 3 (no proofs required).",
+              "cognitive_levels": [
+                "R",
+                "P"
+              ],
+              "common_misconceptions": [
+                "Not systematically testing factors using the factor theorem",
+                "Confusing the remainder theorem with the factor theorem"
+              ],
+              "teaching_notes": "FACTOR THEOREM: If f(a) = 0, then (x - a) is a factor of f(x). Conversely, if (x - a) is a factor, then f(a) = 0. REMAINDER THEOREM: When f(x) is divided by (x - a), the remainder is f(a). If the remainder is 0, then (x - a) is a factor (this is the factor theorem). SYSTEMATIC METHOD TO FACTORISE A CUBIC: Step 1: List the factors of the constant term. These are the values to test. For f(x) = 2x^3 - 3x^2 - 11x + 6, the constant term is 6, so test x = +/-1, +/-2, +/-3, +/-6. Also test x = +/-1/2, +/-3/2 (factors of constant / factors of leading coefficient). Step 2: Substitute each value until you find f(a) = 0. Step 3: Divide f(x) by (x - a) using long division or inspection. Step 4: Factorise the resulting quadratic. WORKED EXAMPLE 1: Factorise f(x) = 2x^3 - 3x^2 - 11x + 6. Test x = 1: f(1) = 2 - 3 - 11 + 6 = -6. Not zero. Test x = -1: f(-1) = -2 - 3 + 11 + 6 = 12. Not zero. Test x = 3: f(3) = 2(27) - 3(9) - 11(3) + 6 = 54 - 27 - 33 + 6 = 0. So (x - 3) is a factor. LONG DIVISION: 2x^3 - 3x^2 - 11x + 6 divided by (x - 3). 2x^3 / x = 2x^2. 2x^2(x - 3) = 2x^3 - 6x^2. Subtract: 3x^2 - 11x. 3x^2 / x = 3x. 3x(x - 3) = 3x^2 - 9x. Subtract: -2x + 6. -2x / x = -2. -2(x - 3) = -2x + 6. Remainder: 0. Quotient: 2x^2 + 3x - 2. Factorise: 2x^2 + 3x - 2 = (2x - 1)(x + 2). Final answer: f(x) = (x - 3)(2x - 1)(x + 2). The x-intercepts are x = 3, x = 1/2, and x = -2. WORKED EXAMPLE 2 (Remainder theorem): Find the remainder when f(x) = x^3 + 2x^2 - 5x + 1 is divided by (x + 3). Remainder = f(-3) = (-3)^3 + 2(-3)^2 - 5(-3) + 1 = -27 + 18 + 15 + 1 = 7. INSPECTION METHOD (alternative to long division): If (x - 3) is a factor of 2x^3 - 3x^2 - 11x + 6, write 2x^3 - 3x^2 - 11x + 6 = (x - 3)(2x^2 + bx + c). Expand the right side and compare coefficients. The constant gives: (-3)(c) = 6, so c = -2. The x^2 term gives: b - 6 = -3, so b = 3. Check: (x - 3)(2x^2 + 3x - 2) = 2x^3 + 3x^2 - 2x - 6x^2 - 9x + 6 = 2x^3 - 3x^2 - 11x + 6. Correct. COMMON ERRORS: (1) Only testing positive integers -- always test negative values and fractions too. (2) Making arithmetic errors in substitution -- write out each term carefully. (3) Stopping after finding one factor -- you must factorise the quadratic completely. (4) Confusing (x - 3) with (x + 3): if f(3) = 0, the factor is (x - 3), not (x + 3). NSC EXAM TIPS: Factor and remainder theorem questions appear in Paper 1, typically worth 6-8 marks. The NSC often gives a cubic and asks you to show that (x - a) is a factor, then factorise completely. The connection to cubic graph sketching (calculus section) is very strong: finding x-intercepts of a cubic uses the factor theorem, then calculus gives turning points. This is one of the most commonly examined cross-topic links. LINK TO OTHER TOPICS: Cubic factorisation is essential for sketching cubic graphs in the calculus section. The x-intercepts found here become the zeros plotted on the graph. The factor theorem also connects to the remainder when dividing polynomials, which appears in algebraic fraction simplification."
+            }
+          ],
+          "children": [],
+          "term": 2
+        }
+      ]
+    },
+    {
+      "code": "CAPS-M12-CALC",
+      "name": "Differential Calculus and Integration",
+      "level": "unit",
+      "sort_order": 4,
+      "exam_weight": 0.3,
+      "sba_relevant": true,
+      "prerequisites": [],
+      "children": [
+        {
+          "code": "CAPS-M12-CALC-DIFF",
+          "name": "Differentiation and Integration",
+          "level": "topic",
+          "sort_order": 1,
+          "exam_weight": null,
+          "sba_relevant": true,
+          "prerequisites": [],
+          "knowledge_components": [
+            {
+              "code": "caps-m12-calc-diff-01",
+              "description": "Understand limits intuitively as the gradient of a curve at a point",
+              "bloom_ceiling": "understand",
+              "slip_rate": 0.1,
+              "learning_rate": 0.15,
+              "exam_weight": 0.0,
+              "kc_prerequisites": [],
+              "curriculum_statement": "An intuitive understanding of the limit concept, in the context of approximating the rate of change or gradient of a function at a point",
+              "cognitive_levels": [
+                "K"
+              ],
+              "common_misconceptions": [
+                "Thinking the limit IS the value at the point rather than what it approaches"
+              ],
+              "teaching_notes": "WHAT IS A LIMIT? A limit is the value a function APPROACHES as x gets closer and closer to a specific point, even if the function is not defined at that point. CAPS requires an intuitive understanding, not formal epsilon-delta proofs. USING A TABLE TO SHOW CONVERGENCE: Consider f(x) = (x^2 - 4)/(x - 2). At x = 2, the function gives 0/0 (undefined). But approach x = 2 from both sides: x = 1.9 gives f = 3.9. x = 1.99 gives f = 3.99. x = 1.999 gives f = 3.999. x = 2.001 gives f = 4.001. x = 2.01 gives f = 4.01. The values approach 4 from both sides, so lim[x->2] f(x) = 4. ALGEBRAIC VERIFICATION: f(x) = (x^2 - 4)/(x - 2) = (x-2)(x+2)/(x-2) = x + 2 for x != 2. As x -> 2, f(x) -> 2 + 2 = 4. This confirms the table result. WHY LIMITS MATTER FOR CALCULUS: The gradient of a straight line is constant, but the gradient of a curve changes at every point. To find the gradient at a specific point, we use the average gradient between two points and let the distance between them shrink to zero. The average gradient between (x, f(x)) and (x+h, f(x+h)) is [f(x+h) - f(x)]/h. As h -> 0, this ratio approaches the INSTANTANEOUS gradient at x. This limit IS the derivative. WORKED EXAMPLE (Average gradient approaching instantaneous): f(x) = x^2 at x = 3. Average gradient from x = 3 to x = 3+h: [(3+h)^2 - 9]/h = [9 + 6h + h^2 - 9]/h = [6h + h^2]/h = 6 + h. When h = 1: average gradient = 7. When h = 0.1: average gradient = 6.1. When h = 0.01: average gradient = 6.01. As h -> 0, the average gradient -> 6. So the instantaneous gradient of x^2 at x = 3 is 6. COMMON ERRORS: (1) Thinking lim[x->a] f(x) must equal f(a). The limit is about what f APPROACHES, not the actual value at a. A function can have a limit of 4 at x = 2 even if f(2) is undefined. (2) Trying to substitute directly into an expression that gives 0/0. You must simplify first (factorise, cancel) then substitute. (3) Thinking that 0/0 means the limit is 0. The expression 0/0 is INDETERMINATE, meaning you need to do more work to find the actual limit. NSC EXAM TIPS: Limits are assessed in Paper 1 as part of the calculus section, worth about 35 marks total. The limit concept is tested through first principles differentiation (next KC). You may be asked to explain what a limit means in context, or to evaluate a limit by simplification. The table-of-values approach is useful for showing understanding but algebraic simplification is expected for full marks. LINK TO OTHER TOPICS: The limit concept is the foundation of ALL calculus. It leads directly to differentiation from first principles (the formal definition of the derivative). The idea of approaching a value also connects to the sum to infinity of geometric series (where r^n approaches 0)."
+            },
+            {
+              "code": "caps-m12-calc-diff-02",
+              "description": "Differentiate from first principles using the limit definition",
+              "bloom_ceiling": "apply",
+              "slip_rate": 0.1,
+              "learning_rate": 0.15,
+              "exam_weight": 0.0,
+              "kc_prerequisites": [
+                "caps-m12-calc-diff-01"
+              ],
+              "curriculum_statement": "Use limits to define the derivative: f'(x) = lim[h→0] (f(x+h) - f(x))/h. Generalise to find the derivative of f at any point x in the domain",
+              "cognitive_levels": [
+                "R",
+                "C"
+              ],
+              "common_misconceptions": [
+                "Algebraic errors in the expansion of f(x+h)",
+                "Not simplifying before taking the limit (dividing by h)"
+              ],
+              "teaching_notes": "FIRST PRINCIPLES DEFINITION: f'(x) = lim[h->0] [f(x+h) - f(x)] / h. This formula defines the derivative as the limit of the average gradient as h shrinks to zero. FOUR-STEP METHOD (follow every time): Step 1: Write f(x+h) by replacing every x in f(x) with (x+h). Step 2: Compute f(x+h) - f(x) and expand all brackets fully. Step 3: Divide by h. Every term in the numerator MUST have h as a factor, so h cancels. If h does not cancel, you have an algebra mistake -- go back and check. Step 4: Take the limit as h -> 0 (substitute h = 0 into the simplified expression). WORKED EXAMPLE 1: f(x) = 3x^2. Step 1: f(x+h) = 3(x+h)^2 = 3(x^2 + 2xh + h^2) = 3x^2 + 6xh + 3h^2. Step 2: f(x+h) - f(x) = 3x^2 + 6xh + 3h^2 - 3x^2 = 6xh + 3h^2. Step 3: [6xh + 3h^2]/h = h(6x + 3h)/h = 6x + 3h. Step 4: lim[h->0] (6x + 3h) = 6x + 0 = 6x. Therefore f'(x) = 6x. WORKED EXAMPLE 2: f(x) = -2x^3. Step 1: f(x+h) = -2(x+h)^3 = -2(x^3 + 3x^2h + 3xh^2 + h^3) = -2x^3 - 6x^2h - 6xh^2 - 2h^3. Step 2: f(x+h) - f(x) = -6x^2h - 6xh^2 - 2h^3. Step 3: Divide by h: -6x^2 - 6xh - 2h^2. Step 4: lim[h->0] = -6x^2. Therefore f'(x) = -6x^2. WORKED EXAMPLE 3: f(x) = 5/x = 5x^(-1). Step 1: f(x+h) = 5/(x+h). Step 2: f(x+h) - f(x) = 5/(x+h) - 5/x = [5x - 5(x+h)] / [x(x+h)] = -5h / [x(x+h)]. Step 3: Divide by h: -5h / [hx(x+h)] = -5 / [x(x+h)]. Step 4: lim[h->0] = -5 / [x(x)] = -5/x^2. Therefore f'(x) = -5/x^2. KEY EXPANSIONS TO MEMORISE: (x+h)^2 = x^2 + 2xh + h^2 (NOT x^2 + h^2 -- the middle term 2xh is essential). (x+h)^3 = x^3 + 3x^2h + 3xh^2 + h^3 (use Pascal's triangle or the binomial expansion). COMMON ERRORS: (1) Expanding (x+h)^2 as x^2 + h^2, forgetting the cross term 2xh. This is the most frequent algebraic error. (2) Not factoring out h before cancelling -- you must show h cancelling explicitly. (3) Substituting h = 0 before cancelling h (this would give 0/0). (4) Dropping the 'lim' notation before actually taking the limit -- keep writing lim[h->0] until you substitute h = 0. NSC EXAM TIPS: First principles differentiation appears in Paper 1 almost every year, typically worth 5-6 marks. The NSC usually asks for the derivative of a quadratic (x^2 type) or occasionally a cubic (x^3 type) from first principles. You MUST show all four steps clearly. Writing the answer without the working earns 0 marks even if correct. The NSC marking guidelines award marks for: writing the definition (1 mark), correct substitution (1 mark), correct expansion (1 mark), factoring and cancelling h (1 mark), and the final answer (1 mark). LINK TO OTHER TOPICS: First principles provides the theoretical foundation for the power rule shortcut (next KC). It connects the limit concept to practical gradient calculation. The expansion of (x+h)^n uses binomial theorem concepts."
+            },
+            {
+              "code": "caps-m12-calc-diff-03",
+              "description": "Differentiate using the power rule, sum/difference rule, and constant multiple rule",
+              "bloom_ceiling": "apply",
+              "slip_rate": 0.1,
+              "learning_rate": 0.15,
+              "exam_weight": 0.0,
+              "kc_prerequisites": [
+                "caps-m12-calc-diff-02"
+              ],
+              "curriculum_statement": "Use the formula d/dx(ax^n) = nax^(n-1) for a, b, c constants. Use d/dx[f(x) ± g(x)] = f'(x) ± g'(x) and d/dx[k·f(x)] = k·f'(x)",
+              "cognitive_levels": [
+                "R"
+              ],
+              "common_misconceptions": [
+                "Trying to use the power rule on products or quotients without simplifying first",
+                "Forgetting to rewrite √x as x^(1/2) before differentiating"
+              ],
+              "teaching_notes": "THE POWER RULE: d/dx[x^n] = nx^(n-1). Bring the power down as a multiplier, then reduce the power by 1. This works for any real exponent n, including fractions and negatives. ADDITIONAL RULES: Constant rule: d/dx[c] = 0 (the derivative of any constant is zero). Constant multiple rule: d/dx[kf(x)] = k f'(x). Sum/difference rule: d/dx[f +/- g] = f' +/- g' (differentiate term by term). CRITICAL PREPARATION STEP: Before differentiating, rewrite ALL roots and fractions as powers. sqrt(x) = x^(1/2). 1/x = x^(-1). 1/x^2 = x^(-2). cube_root(x) = x^(1/3). 3/sqrt(x) = 3x^(-1/2). WORKED EXAMPLE 1: f(x) = 2x^3 - 4sqrt(x) + 1/x. Rewrite: f(x) = 2x^3 - 4x^(1/2) + x^(-1). Differentiate term by term: d/dx[2x^3] = 2(3)x^2 = 6x^2. d/dx[-4x^(1/2)] = -4(1/2)x^(-1/2) = -2x^(-1/2) = -2/sqrt(x). d/dx[x^(-1)] = (-1)x^(-2) = -1/x^2. Therefore f'(x) = 6x^2 - 2/sqrt(x) - 1/x^2. WORKED EXAMPLE 2 (Expanding before differentiating): f(x) = (2x + 1)(x - 3). CAPS does not require the product rule, so EXPAND FIRST: f(x) = 2x^2 - 6x + x - 3 = 2x^2 - 5x - 3. f'(x) = 4x - 5. WORKED EXAMPLE 3 (Simplifying a fraction before differentiating): f(x) = (x^3 + 4x)/x = x^2 + 4. f'(x) = 2x. Do NOT try to use a quotient rule -- just simplify by dividing each term by x. WORKED EXAMPLE 4 (Negative and fractional exponents): f(x) = 3x^(-2) + x^(2/3). f'(x) = 3(-2)x^(-3) + (2/3)x^(-1/3) = -6/x^3 + 2/(3 cube_root(x)). COMMON ERRORS: (1) Trying to differentiate a product like (2x+1)(x-3) directly without expanding. CAPS only requires the power rule -- always expand products first. (2) Forgetting to rewrite sqrt(x) as x^(1/2) before differentiating. You cannot differentiate sqrt(x) directly with the power rule unless rewritten. (3) Errors with negative exponents: d/dx[x^(-1)] = -1x^(-2) = -1/x^2, not +1/x^2. (4) Forgetting that d/dx[constant] = 0. If f(x) = 3x^2 + 7, then f'(x) = 6x, not 6x + 7. (5) Not converting the answer back to surd/fraction form when the question requires it. CALCULATOR TIP: You can verify your derivative by checking specific values. If f(x) = x^3 and f'(x) = 3x^2, then at x = 2: f'(2) = 12. Check: [f(2.001) - f(2)]/0.001 = [8.012006 - 8]/0.001 = 12.006, which approximates 12. NSC EXAM TIPS: The power rule is used in almost every calculus question in Paper 1 (35 marks total for the calculus section). It is the fundamental tool for finding gradients, tangent lines, turning points, and solving optimisation problems. The NSC frequently gives expressions that need rewriting before differentiation, testing whether you can convert roots and fractions to power form. Always show the rewriting step for full marks. LINK TO OTHER TOPICS: The power rule is the shortcut derived from first principles. It is used in ALL subsequent calculus topics: tangent lines, curve sketching, optimisation, and rates of change. It also connects to the gradient concept from analytical geometry."
+            },
+            {
+              "code": "caps-m12-calc-diff-04",
+              "description": "Determine the equation of a tangent line to a curve at a given point",
+              "bloom_ceiling": "apply",
+              "slip_rate": 0.1,
+              "learning_rate": 0.15,
+              "exam_weight": 0.0,
+              "kc_prerequisites": [
+                "caps-m12-calc-diff-03"
+              ],
+              "curriculum_statement": "Find equations of tangents to graphs of functions",
+              "cognitive_levels": [
+                "R",
+                "C"
+              ],
+              "common_misconceptions": [
+                "Using f(x) instead of f'(x) for the gradient",
+                "Not finding both the gradient AND the point"
+              ],
+              "teaching_notes": "A TANGENT to a curve at a point is a straight line that touches the curve at that point and has the same gradient as the curve at that point. FOUR-STEP METHOD: Step 1: Differentiate f(x) to get f'(x). Step 2: Substitute x = a into f'(x) to find the gradient m of the tangent. Step 3: Substitute x = a into f(x) to find the y-coordinate of the point of tangency. Step 4: Use point-gradient form: y - y1 = m(x - x1) to write the equation. WORKED EXAMPLE 1 (Finding tangent at a given x-value): Find the tangent to f(x) = x^2 - 3x + 2 at x = 1. Step 1: f'(x) = 2x - 3. Step 2: Gradient m = f'(1) = 2(1) - 3 = -1. Step 3: Point: f(1) = 1 - 3 + 2 = 0, so the point is (1, 0). Step 4: y - 0 = -1(x - 1), so y = -x + 1. WORKED EXAMPLE 2 (Finding the point given the gradient): Find the point(s) on f(x) = x^3 - 6x^2 + 9x where the tangent has gradient 0. Step 1: f'(x) = 3x^2 - 12x + 9. Step 2: Set f'(x) = 0: 3x^2 - 12x + 9 = 0. Divide by 3: x^2 - 4x + 3 = 0. Factor: (x-1)(x-3) = 0. So x = 1 or x = 3. Step 3: f(1) = 1 - 6 + 9 = 4, giving point (1, 4). f(3) = 27 - 54 + 27 = 0, giving point (3, 0). These are the turning points where the tangent is horizontal. WORKED EXAMPLE 3 (Finding tangent from external point): Find the equation of the tangent to f(x) = x^2 that passes through the point (0, -4). Let the point of tangency be (a, a^2). Gradient of tangent = f'(a) = 2a. Also, gradient = (a^2 - (-4))/(a - 0) = (a^2 + 4)/a. Set equal: 2a = (a^2 + 4)/a. Multiply by a: 2a^2 = a^2 + 4. So a^2 = 4, giving a = 2 or a = -2. Two tangent lines: y = 4x - 4 (through (2, 4)) and y = -4x - 4 (through (-2, 4)). NORMAL LINE: The normal is perpendicular to the tangent. If tangent gradient = m, then normal gradient = -1/m. Use the same point of tangency with the normal gradient to write the equation. COMMON ERRORS: (1) Using f(a) as the gradient instead of f'(a). Remember: f(a) gives the y-COORDINATE of the point; f'(a) gives the GRADIENT of the tangent. This is the most common confusion. (2) Forgetting to find both the gradient AND the point. You need both for the equation. (3) Making errors in the point-gradient formula. Double-check the signs in y - y1 = m(x - x1). (4) Not considering that there may be two tangent lines when the question involves an external point. NSC EXAM TIPS: Tangent line questions appear in Paper 1, typically worth 4-6 marks. Common formats: (a) find the tangent at a given point, (b) find where the tangent has a specific gradient, (c) find the tangent from an external point (harder, 6 marks). The NSC marking memo awards separate marks for the derivative, the gradient value, the point coordinates, and the final equation. Always show all four steps. LINK TO OTHER TOPICS: Tangent lines connect to the equation of a tangent to a circle in analytical geometry (where the tangent is perpendicular to the radius). Horizontal tangents (gradient = 0) give the turning points of cubic functions, which is essential for graph sketching. The gradient at a point also connects to rates of change in optimisation problems."
+            },
+            {
+              "code": "caps-m12-calc-diff-05",
+              "description": "Calculate second derivatives and determine concavity",
+              "bloom_ceiling": "apply",
+              "slip_rate": 0.1,
+              "learning_rate": 0.15,
+              "exam_weight": 0.0,
+              "kc_prerequisites": [
+                "caps-m12-calc-diff-04"
+              ],
+              "curriculum_statement": "Introduce the second derivative f''(x). Determine the concavity of a function.",
+              "cognitive_levels": [
+                "R",
+                "C"
+              ],
+              "common_misconceptions": [
+                "Confusing concave up (f''> 0) with concave down (f'' < 0)",
+                "Not understanding that points of inflection are where f'' = 0 or undefined"
+              ],
+              "teaching_notes": "THE SECOND DERIVATIVE f''(x) is found by differentiating f'(x). It tells us how the gradient itself is changing. If f'(x) gives the slope of the curve, f''(x) tells us whether that slope is increasing or decreasing. CONCAVITY: f''(x) > 0 means CONCAVE UP (cup shape, like a smile). The gradient is increasing -- the curve bends upward. f''(x) < 0 means CONCAVE DOWN (cap shape, like a frown). The gradient is decreasing -- the curve bends downward. Memory aid: concave UP = CUP (holds water), concave DOWN = CAP (sheds water). POINT OF INFLECTION (POI): A point where the concavity CHANGES from up to down or down to up. CONDITIONS: (1) f''(x) = 0 at the point AND (2) f''(x) must change sign on either side of the point. IMPORTANT: f''(x) = 0 alone is NOT sufficient for a POI. You must verify that the sign of f'' actually changes. WORKED EXAMPLE 1: f(x) = x^3 - 6x^2 + 9x + 1. Step 1: f'(x) = 3x^2 - 12x + 9. Step 2: f''(x) = 6x - 12. Step 3: Set f''(x) = 0: 6x - 12 = 0, so x = 2. Step 4: Check sign change: f''(1) = 6(1) - 12 = -6 < 0 (concave down). f''(3) = 6(3) - 12 = 6 > 0 (concave up). Sign changes from negative to positive, so x = 2 IS a point of inflection. Step 5: y-coordinate: f(2) = 8 - 24 + 18 + 1 = 3. POI at (2, 3). SECOND DERIVATIVE TEST FOR STATIONARY POINTS: At a stationary point where f'(a) = 0: If f''(a) > 0, the point is a LOCAL MINIMUM (concave up, cup shape holds the turning point). If f''(a) < 0, the point is a LOCAL MAXIMUM (concave down, cap shape). If f''(a) = 0, the test is INCONCLUSIVE -- use another method (such as testing f'(x) on either side). WORKED EXAMPLE 2: f(x) = x^3 - 3x + 2. f'(x) = 3x^2 - 3 = 3(x-1)(x+1). Stationary points at x = 1 and x = -1. f''(x) = 6x. At x = 1: f''(1) = 6 > 0, so x = 1 is a local minimum. f(1) = 1 - 3 + 2 = 0. Min at (1, 0). At x = -1: f''(-1) = -6 < 0, so x = -1 is a local maximum. f(-1) = -1 + 3 + 2 = 4. Max at (-1, 4). POI: f''(x) = 0 gives x = 0. f''(-0.5) = -3 < 0, f''(0.5) = 3 > 0. Sign change confirmed. POI at (0, 2). COMMON ERRORS: (1) Assuming f''(x) = 0 always means a point of inflection. You must check that the sign of f'' changes. For f(x) = x^4, f''(x) = 12x^2. f''(0) = 0 but f'' >= 0 everywhere (no sign change), so x = 0 is NOT a POI (it is actually a minimum). (2) Confusing concave up with concave down. Remember: f'' > 0 is concave UP (cup). (3) Not finding the y-coordinate of the POI. The NSC always asks for coordinates, not just x-values. NSC EXAM TIPS: Second derivative and concavity questions appear in Paper 1 as part of cubic graph sketching, typically contributing 2-3 marks within a larger question. The second derivative test is the expected method for classifying turning points. The POI is almost always asked for in cubic sketching questions. For a cubic f(x) = ax^3 + bx^2 + cx + d, the POI always occurs at x = -b/(3a), which is the midpoint of the two turning points. LINK TO OTHER TOPICS: The second derivative connects directly to cubic graph sketching (next KC) where you need to classify turning points and find the inflection point. In optimisation, f''(x) confirms whether a stationary point is a maximum or minimum. The concept of concavity also helps explain why a cubic has an S-shaped curve."
+            },
+            {
+              "code": "caps-m12-calc-diff-06",
+              "description": "Sketch cubic functions using calculus (turning points, inflection, intercepts)",
+              "bloom_ceiling": "analyse",
+              "slip_rate": 0.1,
+              "learning_rate": 0.15,
+              "exam_weight": 0.0,
+              "kc_prerequisites": [
+                "caps-m12-calc-diff-03"
+              ],
+              "curriculum_statement": "Sketch graphs of cubic polynomial functions using differentiation to determine coordinates of stationary points, points of inflection, and x-intercepts (using factor theorem and other techniques)",
+              "cognitive_levels": [
+                "C",
+                "P"
+              ],
+              "common_misconceptions": [
+                "Not using the second derivative to classify turning points",
+                "Confusing local and absolute maxima/minima",
+                "Not finding the inflection point"
+              ],
+              "teaching_notes": "CUBIC GRAPH SKETCHING CHECKLIST (follow this order every time): Step 1 -- Y-INTERCEPT: Set x = 0 and calculate f(0). Step 2 -- X-INTERCEPTS: Solve f(x) = 0 using the factor theorem (test values, find one root, divide, factorise the quadratic). Step 3 -- STATIONARY POINTS: Differentiate to get f'(x). Solve f'(x) = 0 (this gives a quadratic equation with two solutions). Step 4 -- NATURE OF STATIONARY POINTS: Use f''(x) at each stationary point. f''(a) > 0 means local minimum. f''(a) < 0 means local maximum. Step 5 -- POINT OF INFLECTION: Solve f''(x) = 0 and verify sign change. Step 6 -- END BEHAVIOUR: If the leading coefficient a > 0, the graph goes from bottom-left to top-right. If a < 0, it goes from top-left to bottom-right. WORKED EXAMPLE: Sketch f(x) = x^3 - 3x^2 - 9x + 27. Step 1: f(0) = 27. Y-intercept at (0, 27). Step 2: Test x = 3: f(3) = 27 - 27 - 27 + 27 = 0. So (x-3) is a factor. Divide: x^3 - 3x^2 - 9x + 27 = (x-3)(x^2 - 9) = (x-3)(x-3)(x+3) = (x-3)^2(x+3). X-intercepts: x = 3 (repeated root, so the graph TOUCHES the x-axis and turns) and x = -3 (single root, so the graph CUTS through the x-axis). Step 3: f'(x) = 3x^2 - 6x - 9 = 3(x^2 - 2x - 3) = 3(x-3)(x+1). Stationary points at x = 3 and x = -1. Step 4: f''(x) = 6x - 6. f''(3) = 12 > 0, so x = 3 is a local minimum. f(3) = 0. Min at (3, 0). f''(-1) = -12 < 0, so x = -1 is a local maximum. f(-1) = -1 - 3 + 9 + 27 = 32. Max at (-1, 32). Step 5: f''(x) = 0 gives 6x - 6 = 0, so x = 1. f(1) = 1 - 3 - 9 + 27 = 16. POI at (1, 16). Check: f''(0) = -6 < 0, f''(2) = 6 > 0. Sign changes, confirmed POI. Step 6: Leading coefficient is 1 > 0, so bottom-left to top-right. TOUCH vs CUT: A repeated root (x-a)^2 means the graph touches the axis and turns back. A single root (x-a) means the graph cuts straight through. A triple root (x-a)^3 means the graph flattens as it passes through (inflection at the x-axis). READING THE GRAPH: Given a graph, you should be able to determine the equation. If the turning points are at x = p and x = q, then f'(x) = a(x-p)(x-q), which you can integrate to find f(x) using a known point. COMMON ERRORS: (1) Not using the factor theorem systematically to find x-intercepts. (2) Forgetting the point of inflection -- the NSC always asks for it. (3) Confusing local max/min with absolute max/min. A cubic has no absolute maximum or minimum (it goes to +/- infinity). (4) Drawing the curve with sharp corners instead of smooth curves at turning points. (5) Not labelling all key features: intercepts, turning points, POI. NSC EXAM TIPS: Cubic sketching is one of the highest-weighted topics in Paper 1, typically worth 8-12 marks. The NSC expects a fully labelled sketch showing: x-intercepts (with coordinates), y-intercept, turning points (with coordinates), point of inflection (with coordinates), and correct end behaviour. The marking memo awards marks for each feature individually, so even a partially correct sketch earns marks. A related question type gives you the graph and asks you to determine the equation. LINK TO OTHER TOPICS: Cubic sketching combines the factor theorem (from polynomial functions) with differentiation (turning points and inflection). The x-intercepts use factorisation skills. The connection between the cubic f(x) and its derivative f'(x) being a parabola is important -- where f'(x) = 0 corresponds to the turning points of f(x), and where f'(x) > 0 means f is increasing."
+            },
+            {
+              "code": "caps-m12-calc-diff-07",
+              "description": "Apply differentiation to optimisation problems and rates of change",
+              "bloom_ceiling": "analyse",
+              "slip_rate": 0.1,
+              "learning_rate": 0.15,
+              "exam_weight": 0.0,
+              "kc_prerequisites": [
+                "caps-m12-calc-diff-06"
+              ],
+              "curriculum_statement": "Solve practical problems concerning optimisation and rate of change, including calculus of motion",
+              "cognitive_levels": [
+                "C",
+                "P"
+              ],
+              "common_misconceptions": [
+                "Not setting up the constraint equation correctly",
+                "Forgetting to verify it's a minimum (not maximum)",
+                "Not expressing the objective function in terms of one variable"
+              ],
+              "teaching_notes": "OPTIMISATION is the process of finding the maximum or minimum value of a quantity. SIX-STEP METHOD: Step 1: Draw a diagram and label all variables. Step 2: Write the OBJECTIVE FUNCTION -- the formula you want to maximise or minimise (area, volume, cost, etc.). Step 3: Write the CONSTRAINT -- an equation linking the variables (usually given in the problem). Step 4: Use the constraint to eliminate one variable from the objective function, so it depends on only ONE variable. Step 5: Differentiate and set f'(x) = 0 to find the critical point(s). Step 6: Use f''(x) to verify whether it is a maximum or minimum. Also check domain restrictions. WORKED EXAMPLE 1 (Classic box problem): An open box is made from a 20cm x 20cm sheet by cutting squares of side x from each corner and folding up. Find x for maximum volume. Step 1: After cutting, the base is (20-2x) by (20-2x) and the height is x. Step 2: Objective: V = x(20-2x)^2. Step 3: Constraint: 0 < x < 10 (physical restriction). Step 4: Expand: V = x(400 - 80x + 4x^2) = 4x^3 - 80x^2 + 400x. Step 5: V' = 12x^2 - 160x + 400. Set V' = 0: 12x^2 - 160x + 400 = 0. Divide by 4: 3x^2 - 40x + 100 = 0. Using the quadratic formula: x = (40 +/- sqrt(1600 - 1200))/6 = (40 +/- 20)/6. x = 10 or x = 10/3. Since x must be less than 10, x = 10/3 cm. Step 6: V'' = 24x - 160. V''(10/3) = 80 - 160 = -80 < 0, confirming MAXIMUM. Maximum volume: V = (10/3)(20 - 20/3)^2 = (10/3)(40/3)^2 = (10/3)(1600/9) = 16000/27 = 592.6 cm^3. WORKED EXAMPLE 2 (Fencing problem): A farmer has 100m of fencing. One side is a wall. Find dimensions for maximum rectangular area. Let x = length parallel to wall, y = perpendicular sides. Constraint: x + 2y = 100, so x = 100 - 2y. Objective: A = xy = (100 - 2y)(y) = 100y - 2y^2. A' = 100 - 4y = 0, so y = 25. A'' = -4 < 0, confirming maximum. x = 100 - 50 = 50. Maximum area = 50 x 25 = 1250 m^2. RATES OF CHANGE: If s(t) represents position as a function of time, then s'(t) = velocity (rate of change of position) and s''(t) = acceleration (rate of change of velocity). WORKED EXAMPLE 3: A ball is thrown upward with s(t) = 20t - 5t^2 metres. Velocity: v(t) = s'(t) = 20 - 10t. At maximum height, v = 0: 20 - 10t = 0, t = 2 seconds. Maximum height: s(2) = 40 - 20 = 20m. Acceleration: a = s''(t) = -10 m/s^2 (constant, due to gravity). COMMON ERRORS: (1) Not expressing the objective in terms of ONE variable before differentiating. If your function has two variables, you have not used the constraint. (2) Forgetting to verify max vs min using f''(x). A stationary point could be either. (3) Ignoring domain restrictions. In the box example, x = 10 gives zero volume, so it is not a valid answer. (4) Not answering the full question -- if asked for dimensions, give BOTH length and width, not just x. (5) In rate of change questions, confusing s(t) with s'(t) -- position is not velocity. NSC EXAM TIPS: Optimisation is one of the most common Paper 1 questions, worth 8-10 marks. The NSC typically presents a geometry diagram with a constraint and asks you to maximise area or volume. The question often says 'show that the formula is...' before asking you to find the maximum -- this is a strong hint to use the given formula. Rate of change and calculus of motion questions are worth 4-6 marks. Always define what the derivative represents in context (velocity, rate of change of volume, etc.). LINK TO OTHER TOPICS: Optimisation combines algebraic manipulation (setting up the formula), differentiation (finding the critical point), and the second derivative test (verifying max/min). The box problem and fencing problem are the most frequently examined types. Motion problems connect calculus to physics concepts."
+            }
+          ],
+          "children": [],
+          "term": 3
+        }
+      ]
+    },
+    {
+      "code": "CAPS-M12-TRIG",
+      "name": "Trigonometry",
+      "level": "unit",
+      "sort_order": 5,
+      "exam_weight": 0.1,
+      "sba_relevant": true,
+      "prerequisites": [],
+      "children": [
+        {
+          "code": "CAPS-M12-TRIG-COMP",
+          "name": "Compound and Double Angle Formulae",
+          "level": "topic",
+          "sort_order": 1,
+          "exam_weight": null,
+          "sba_relevant": true,
+          "prerequisites": [],
+          "knowledge_components": [
+            {
+              "code": "caps-m12-trig-comp-01",
+              "description": "Derive and apply compound angle and double angle formulae",
+              "bloom_ceiling": "apply",
+              "slip_rate": 0.1,
+              "learning_rate": 0.15,
+              "exam_weight": 0.0,
+              "kc_prerequisites": [],
+              "curriculum_statement": "Compound angle identities: cos(α±β) = cosα·cosβ ∓ sinα·sinβ, sin(α±β) = sinα·cosβ ± cosα·sinβ. Double angle formulae: sin2α = 2sinα·cosα, cos2α = cos²α - sin²α = 2cos²α - 1 = 1 - 2sin²α",
+              "cognitive_levels": [
+                "R",
+                "C"
+              ],
+              "common_misconceptions": [
+                "Confusing which signs go with cos(α±β) vs sin(α±β)",
+                "Not recognising when to apply double angle vs compound angle",
+                "Forgetting that cos2α has three equivalent forms"
+              ],
+              "teaching_notes": "COMPOUND ANGLE FORMULAE: cos(A + B) = cosA cosB - sinA sinB (note the MINUS). cos(A - B) = cosA cosB + sinA sinB (note the PLUS). Memory aid: cosine compound takes the OPPOSITE sign to the +/- in the bracket. sin(A + B) = sinA cosB + cosA sinB (SAME sign as bracket). sin(A - B) = sinA cosB - cosA sinB (SAME sign as bracket). Memory aid: sine compound keeps the SAME sign. DOUBLE ANGLE FORMULAE (set B = A in the compound formulae): sin 2A = 2 sinA cosA. cos 2A = cos^2(A) - sin^2(A) = 2cos^2(A) - 1 = 1 - 2sin^2(A). The THREE forms of cos 2A are all essential. Choose based on what you want to eliminate: use 2cos^2(A) - 1 if you want everything in terms of cos, use 1 - 2sin^2(A) if you want everything in terms of sin. WORKED EXAMPLE 1 (Evaluating without a calculator): cos 75 degrees = cos(45 + 30) = cos45 cos30 - sin45 sin30 = (sqrt(2)/2)(sqrt(3)/2) - (sqrt(2)/2)(1/2) = sqrt(6)/4 - sqrt(2)/4 = (sqrt(6) - sqrt(2))/4. WORKED EXAMPLE 2 (Proving an identity): Prove that cos 2A / (1 + sin 2A) = (cosA - sinA)/(cosA + sinA). LHS = (cos^2(A) - sin^2(A)) / (1 + 2sinA cosA). Factor numerator: (cosA - sinA)(cosA + sinA). Recognise denominator: sin^2(A) + cos^2(A) + 2sinA cosA = (cosA + sinA)^2. So LHS = (cosA - sinA)(cosA + sinA) / (cosA + sinA)^2 = (cosA - sinA)/(cosA + sinA) = RHS. WORKED EXAMPLE 3 (Solving a trig equation): Solve sin 2x = cos x for x in [0, 360]. Step 1: Replace sin 2x with 2sinx cosx: 2sinx cosx = cosx. Step 2: Rearrange: 2sinx cosx - cosx = 0. Step 3: Factor: cosx(2sinx - 1) = 0. Step 4: cosx = 0 gives x = 90 or x = 270. 2sinx - 1 = 0 gives sinx = 1/2, so x = 30 or x = 150. Solutions: x = 30, 90, 150, 270. WORKED EXAMPLE 4 (Using double angle to simplify): Simplify (1 - cos 2x) / sin 2x. Replace cos 2x with 1 - 2sin^2(x): numerator = 1 - (1 - 2sin^2(x)) = 2sin^2(x). Replace sin 2x with 2sinx cosx: denominator = 2sinx cosx. Result = 2sin^2(x) / (2sinx cosx) = sinx / cosx = tanx. COMMON ERRORS: (1) Getting the sign wrong in cos(A+B). Remember: cos takes the OPPOSITE sign. cos(A+B) has a MINUS between the terms. (2) Confusing when to use compound vs double angle. Double angle is a special case where both angles are the same. (3) Not recognising which form of cos 2A to use. Tip: if the expression has only sin terms, use cos 2A = 1 - 2sin^2(A). If it has only cos terms, use cos 2A = 2cos^2(A) - 1. (4) Dividing both sides by cosx or sinx in an equation, losing solutions where that trig ratio equals zero. Always factor instead. NSC EXAM TIPS: Compound and double angle questions appear in Paper 2, typically worth 8-12 marks within the trigonometry section. Common question types: (a) evaluate expressions like sin 75 without a calculator (4-5 marks), (b) prove trigonometric identities (4-6 marks), (c) solve equations involving sin 2x or cos 2x (4-6 marks). When proving identities, start with the MORE COMPLEX side and work towards the simpler side. Show every step -- the marking memo awards marks for each correct manipulation. LINK TO OTHER TOPICS: Double angle formulae are used in solving trig equations (general solutions). The identity cos 2A = 1 - 2sin^2(A) rearranges to sin^2(A) = (1 - cos 2A)/2, which is useful in integration at university level. Compound angles also connect to the 2D and 3D trigonometry problems where you need to work with sums of angles."
+            }
+          ],
+          "children": [],
+          "term": 2
+        },
+        {
+          "code": "CAPS-M12-TRIG-3D",
+          "name": "2D and 3D Trigonometric Problems",
+          "level": "topic",
+          "sort_order": 2,
+          "exam_weight": null,
+          "sba_relevant": true,
+          "prerequisites": [
+            "CAPS-M12-TRIG-COMP"
+          ],
+          "knowledge_components": [
+            {
+              "code": "caps-m12-trig-3d-01",
+              "description": "Apply trig rules to problems involving height, distance, bearings in 2D and 3D",
+              "bloom_ceiling": "analyse",
+              "slip_rate": 0.1,
+              "learning_rate": 0.15,
+              "exam_weight": 0.0,
+              "kc_prerequisites": [],
+              "curriculum_statement": "Solve problems in two and three dimensions using sine, cosine and area rules",
+              "cognitive_levels": [
+                "C",
+                "P"
+              ],
+              "common_misconceptions": [
+                "Not correctly identifying the relevant triangle in a 3D problem",
+                "Confusing angle of elevation with angle of depression"
+              ],
+              "teaching_notes": "THREE RULES FOR NON-RIGHT-ANGLED TRIANGLES: SINE RULE: a/sinA = b/sinB = c/sinC. Use when you have a side and its opposite angle (AAS or ASA). Can also be written as sinA/a = sinB/b = sinC/c. COSINE RULE: a^2 = b^2 + c^2 - 2bc cosA. Use when you have three sides (SSS) or two sides and the included angle (SAS). To find an angle: cosA = (b^2 + c^2 - a^2) / (2bc). AREA RULE: Area = (1/2)ab sinC. Use when you have two sides and the included angle. CHOOSING THE RIGHT RULE: Given AAS or ASA -> sine rule. Given SAS -> cosine rule (for the third side), then sine rule or area rule. Given SSS -> cosine rule (to find an angle). WORKED EXAMPLE 1 (Bearings with cosine rule): From point A, the bearing to B is 070 degrees, AB = 50m. From A, the bearing to C is 130 degrees, AC = 80m. Step 1: Angle BAC = 130 - 70 = 60 degrees. Step 2: By cosine rule: BC^2 = 50^2 + 80^2 - 2(50)(80)cos 60 = 2500 + 6400 - 2(50)(80)(0.5) = 8900 - 4000 = 4900. Step 3: BC = sqrt(4900) = 70m. WORKED EXAMPLE 2 (Area with sine rule): In triangle PQR, PQ = 12cm, QR = 8cm, angle Q = 50 degrees. Area = (1/2)(12)(8) sin 50 = 48 sin 50 = 48(0.766) = 36.77 cm^2. WORKED EXAMPLE 3 (Sine rule -- ambiguous case): In triangle ABC, a = 10, b = 7, angle A = 40 degrees. Find angle B. sinB/b = sinA/a, so sinB = 7 sin 40 / 10 = 7(0.6428)/10 = 0.4499. B = 26.74 degrees or B = 180 - 26.74 = 153.26 degrees. Check: if B = 153.26, then A + B = 193.26 > 180, which is impossible. So B = 26.74 degrees only. APPROACH TO 3D PROBLEMS: Step 1: Identify which plane contains the triangle you need. Step 2: Extract that triangle and draw it flat (2D). Step 3: Mark all known sides and angles. Step 4: Apply the appropriate rule (sine, cosine, or area). Step 5: Use the result to solve for the required quantity in the 3D context. ANGLES OF ELEVATION AND DEPRESSION: Angle of elevation is measured UPWARD from the horizontal. Angle of depression is measured DOWNWARD from the horizontal. These are alternate angles (formed by a horizontal line and a transversal), so the angle of elevation from A to B equals the angle of depression from B to A. BEARINGS: Always measured CLOCKWISE from NORTH. Written as three digits: 060 degrees (not 60). North = 000, East = 090, South = 180, West = 270. To find the angle between two bearings from the same point, subtract the smaller from the larger. COMMON ERRORS: (1) Not correctly identifying the relevant triangle in a 3D problem. Draw the 3D figure first, then extract flat triangles. (2) Confusing angle of elevation with angle of depression. Draw a horizontal line at the observer's eye level. (3) Using the sine rule when you should use the cosine rule (or vice versa). Check what information you have: side-angle-side = cosine rule. (4) Not considering the ambiguous case when using the sine rule to find an angle. (5) In bearings, measuring anticlockwise instead of clockwise from North. NSC EXAM TIPS: 2D and 3D trigonometry appears in Paper 2, typically worth 10-12 marks. The NSC loves combining bearings with the cosine rule, and height-and-distance problems with angles of elevation. For 3D problems, the question usually includes a 3D diagram, and you must identify the correct plane and triangle. Show your extracted 2D triangle clearly -- this earns method marks even if the final answer is wrong. The area rule is sometimes asked as a standalone question or as part of a larger problem. LINK TO OTHER TOPICS: The sine and cosine rules use trigonometric ratios from Grade 11. Bearings problems combine trig with the geometry of angles. The 3D problems often involve right-angled triangles (Pythagoras) combined with the sine or cosine rule in a non-right-angled triangle in a different plane."
+            }
+          ],
+          "children": [],
+          "term": 2
+        }
+      ]
+    },
+    {
+      "code": "CAPS-M12-GEOM",
+      "name": "Euclidean Geometry",
+      "level": "unit",
+      "sort_order": 6,
+      "exam_weight": 0.1,
+      "sba_relevant": true,
+      "prerequisites": [],
+      "children": [
+        {
+          "code": "CAPS-M12-GEOM-SIM",
+          "name": "Proportionality and Similarity",
+          "level": "topic",
+          "sort_order": 1,
+          "exam_weight": null,
+          "sba_relevant": true,
+          "prerequisites": [],
+          "knowledge_components": [
+            {
+              "code": "caps-m12-geom-sim-01",
+              "description": "Prove and apply proportionality theorems and similarity in triangles",
+              "bloom_ceiling": "analyse",
+              "slip_rate": 0.1,
+              "learning_rate": 0.15,
+              "exam_weight": 0.0,
+              "kc_prerequisites": [],
+              "curriculum_statement": "Revise earlier work and prove that: a line drawn parallel to one side of a triangle divides the other two sides proportionally, equiangular triangles are similar, triangles with proportional sides are similar, the Pythagorean Theorem by similar triangles.",
+              "cognitive_levels": [
+                "R",
+                "C",
+                "P"
+              ],
+              "common_misconceptions": [
+                "Not correctly matching corresponding sides in similar triangles",
+                "Confusing the mid-point theorem with the proportionality theorem",
+                "Not using the correct order when setting up proportions"
+              ],
+              "teaching_notes": "FOUR THEOREMS REQUIRED BY CAPS: Theorem 1 -- PROPORTIONALITY THEOREM: A line drawn parallel to one side of a triangle divides the other two sides proportionally. If DE is parallel to BC in triangle ABC (with D on AB and E on AC), then AD/DB = AE/EC. The converse is also true: if a line divides two sides of a triangle proportionally, then it is parallel to the third side. Theorem 2 -- EQUIANGULAR TRIANGLES ARE SIMILAR (AAA): If all three pairs of corresponding angles are equal, the triangles are similar and their corresponding sides are in proportion. Theorem 3 -- TRIANGLES WITH PROPORTIONAL SIDES ARE SIMILAR: If the corresponding sides of two triangles are in the same ratio, the triangles are similar (the converse of Theorem 2). Theorem 4 -- PYTHAGOREAN THEOREM BY SIMILAR TRIANGLES: In a right-angled triangle, the square on the hypotenuse equals the sum of the squares on the other two sides. This can be proved using the similar triangles formed by the altitude from the right angle to the hypotenuse. PROOF STRUCTURE FOR SIMILARITY: Step 1: STATE which two triangles you are proving similar (e.g., 'In triangles ABC and DEF'). Step 2: SHOW three pairs of equal angles with geometric reasons (alternate angles with parallel lines, vertically opposite angles, common/shared angles, angles in the same segment, etc.). Step 3: CONCLUDE similarity: 'Therefore triangle ABC is similar to triangle DEF (AAA)' or use the symbol |||. Step 4: WRITE the proportion of corresponding sides. CRITICAL: the order of vertices in the similarity statement determines which sides correspond. WORKED EXAMPLE 1 (Using similarity): Triangle ABC ||| Triangle DEF with AB/DE = BC/EF = AC/DF = 3/2. If BC = 12, find EF. From the proportion: BC/EF = 3/2, so 12/EF = 3/2. Cross multiply: EF = 12 x 2/3 = 8. WORKED EXAMPLE 2 (Proving similarity in a diagram): In triangle PQR, ST is parallel to QR with S on PQ and T on PR. Prove triangle PST ||| triangle PQR. In triangles PST and PQR: angle P is common (shared angle). angle PST = angle PQR (corresponding angles, ST parallel to QR). angle PTS = angle PRQ (corresponding angles, ST parallel to QR). Therefore triangle PST ||| triangle PQR (AAA). Proportion: PS/PQ = PT/PR = ST/QR. WORKED EXAMPLE 3 (Proportionality theorem application): In triangle ABC, D is on AB and E is on AC such that DE is parallel to BC. AD = 4, DB = 6, AE = 3. Find EC. By proportionality theorem: AD/DB = AE/EC. 4/6 = 3/EC. EC = 3 x 6/4 = 4.5. COMMON ERRORS: (1) Matching corresponding sides in the wrong order. If triangle ABC ||| triangle DEF, then AB corresponds to DE (not DF). Always write the similarity statement with vertices in corresponding order. (2) Not giving geometric REASONS for equal angles. In the NSC, every angle statement must have a reason in brackets. (3) Confusing the proportionality theorem with the mid-point theorem. The mid-point theorem is a special case where D and E are midpoints, giving AD/DB = 1. (4) Not stating the conclusion 'therefore the triangles are similar (AAA)' explicitly. (5) Setting up the proportion incorrectly -- always check that corresponding sides are in the same positions in the ratio. NSC EXAM TIPS: Euclidean geometry appears in Paper 2, typically worth 30-35 marks. Similarity proofs are usually worth 8-12 marks within this section. The NSC expects a structured proof with statements and reasons in two columns. You MUST give reasons for every step (parallel lines, alternate angles, etc.). The proportionality theorem proof is an examinable proof -- you may be asked to reproduce it. The NSC frequently combines circle geometry with similarity: triangles formed by chords and tangents often turn out to be similar. LINK TO OTHER TOPICS: Similarity connects to the Pythagorean theorem (provable via similar triangles). It also connects to trigonometric ratios (similar right-angled triangles have the same trig ratios regardless of size). Proportionality relates to the concept of ratio and proportion used in analytical geometry when dividing a line segment in a given ratio."
+            }
+          ],
+          "children": [],
+          "term": 3
+        }
+      ]
+    },
+    {
+      "code": "CAPS-M12-ANLY",
+      "name": "Analytical Geometry",
+      "level": "unit",
+      "sort_order": 7,
+      "exam_weight": 0.05,
+      "sba_relevant": true,
+      "prerequisites": [],
+      "children": [
+        {
+          "code": "CAPS-M12-ANLY-CIRC",
+          "name": "Circles and Tangents",
+          "level": "topic",
+          "sort_order": 1,
+          "exam_weight": null,
+          "sba_relevant": true,
+          "prerequisites": [],
+          "knowledge_components": [
+            {
+              "code": "caps-m12-anly-circ-01",
+              "description": "Work with circle equations and find tangent lines to circles",
+              "bloom_ceiling": "analyse",
+              "slip_rate": 0.1,
+              "learning_rate": 0.15,
+              "exam_weight": 0.0,
+              "kc_prerequisites": [],
+              "curriculum_statement": "The equation (x-a)² + (y-b)² = r² defines a circle with radius r and centre (a,b). Determination of the equation of a tangent to a given circle.",
+              "cognitive_levels": [
+                "K",
+                "R",
+                "C",
+                "P"
+              ],
+              "common_misconceptions": [
+                "Not completing the square to get standard form",
+                "Forgetting that tangent is perpendicular to the radius at the point of contact",
+                "Sign errors when extracting centre from the equation"
+              ],
+              "teaching_notes": "CIRCLE EQUATION IN STANDARD FORM: (x - a)^2 + (y - b)^2 = r^2, where (a, b) is the centre and r is the radius. READING THE CENTRE: Be careful with signs. (x - 3)^2 + (y + 2)^2 = 25 has centre (3, -2) and radius 5. The centre coordinates are the OPPOSITE sign of what appears in the brackets. CONVERTING FROM GENERAL FORM: Given x^2 + y^2 + Dx + Ey + F = 0, complete the square for x and y separately to get standard form. WORKED EXAMPLE 1 (Completing the square): x^2 + y^2 - 6x + 4y - 12 = 0. Step 1: Group x and y terms: (x^2 - 6x) + (y^2 + 4y) = 12. Step 2: Complete the square for x: (x^2 - 6x + 9) - 9 = (x - 3)^2 - 9. Step 3: Complete the square for y: (y^2 + 4y + 4) - 4 = (y + 2)^2 - 4. Step 4: Combine: (x - 3)^2 - 9 + (y + 2)^2 - 4 = 12. Step 5: (x - 3)^2 + (y + 2)^2 = 25. Centre (3, -2), radius = sqrt(25) = 5. EQUATION OF A TANGENT: A tangent to a circle at point P is PERPENDICULAR to the radius at P. METHOD: Step 1: Find the gradient of the radius from the centre to P: m_radius = (y_P - b)/(x_P - a). Step 2: The tangent gradient is the negative reciprocal: m_tangent = -1/m_radius. Step 3: Use point-gradient form: y - y_P = m_tangent(x - x_P). WORKED EXAMPLE 2: Find the tangent to x^2 + y^2 = 25 at (3, 4). Step 1: Centre is (0, 0). Gradient of radius = (4 - 0)/(3 - 0) = 4/3. Step 2: Tangent gradient = -3/4. Step 3: y - 4 = -3/4(x - 3). Expand: 4y - 16 = -3x + 9. Rearrange: 3x + 4y = 25. WORKED EXAMPLE 3 (Tangent with non-origin centre): Find the tangent to (x - 2)^2 + (y - 1)^2 = 20 at the point (6, 3). Step 1: Centre is (2, 1). m_radius = (3 - 1)/(6 - 2) = 2/4 = 1/2. Step 2: m_tangent = -2. Step 3: y - 3 = -2(x - 6). y = -2x + 15. WORKED EXAMPLE 4 (Determining if a point is inside, on, or outside): For the circle (x - 1)^2 + (y + 3)^2 = 16, test point (3, -1). Substitute: (3 - 1)^2 + (-1 + 3)^2 = 4 + 4 = 8. Since 8 < 16 (= r^2), the point is INSIDE the circle. If the result equals r^2, the point is ON the circle. If greater than r^2, it is OUTSIDE. WORKED EXAMPLE 5 (Finding the equation given endpoints of a diameter): Diameter has endpoints A(1, 3) and B(5, -1). Centre = midpoint = ((1+5)/2, (3-1)/2) = (3, 1). Radius = distance from centre to A = sqrt((3-1)^2 + (1-3)^2) = sqrt(4 + 4) = sqrt(8). Equation: (x - 3)^2 + (y - 1)^2 = 8. COMMON ERRORS: (1) Sign errors when reading the centre from standard form. (x - 3)^2 means centre x-coordinate is +3, not -3. (x + 2)^2 = (x - (-2))^2 means centre x-coordinate is -2. (2) Forgetting to complete the square for BOTH x and y when converting from general form. (3) Not using the perpendicularity relationship for tangents. The tangent is NOT the radius -- it is perpendicular to the radius. (4) Forgetting that tangent gradient = -1/m_radius (negative reciprocal). If m_radius = 0, the tangent is vertical; if m_radius is undefined, the tangent is horizontal. (5) Errors in completing the square: remember to add the same value to both sides, or subtract it from the same side. NSC EXAM TIPS: Circle and tangent questions appear in Paper 2 (analytical geometry section), typically worth 10-15 marks. Common question types: convert general form to standard form, find the tangent at a point, determine if a line is a tangent (check if the distance from centre to line equals the radius), and find the equation of a circle given geometric conditions (endpoints of diameter, centre and tangent point, etc.). Always show completing the square working for full marks. LINK TO OTHER TOPICS: The tangent-radius perpendicularity connects to the Euclidean geometry theorem about tangents to circles. Completing the square is an algebraic skill from Grade 11 quadratics. The gradient and distance formulae from Grade 11 analytical geometry are essential here. The tangent line concept parallels the calculus tangent to a curve."
+            }
+          ],
+          "children": [],
+          "term": 3
+        }
+      ]
+    },
+    {
+      "code": "CAPS-M12-STAT",
+      "name": "Statistics",
+      "level": "unit",
+      "sort_order": 8,
+      "exam_weight": 0.05,
+      "sba_relevant": true,
+      "prerequisites": [],
+      "children": [
+        {
+          "code": "CAPS-M12-STAT-REG",
+          "name": "Regression and Correlation",
+          "level": "topic",
+          "sort_order": 1,
+          "exam_weight": null,
+          "sba_relevant": true,
+          "prerequisites": [],
+          "knowledge_components": [
+            {
+              "code": "caps-m12-stat-reg-01",
+              "description": "Calculate least squares regression, correlation coefficient, and interpret bivariate data",
+              "bloom_ceiling": "analyse",
+              "slip_rate": 0.1,
+              "learning_rate": 0.15,
+              "exam_weight": 0.0,
+              "kc_prerequisites": [],
+              "curriculum_statement": "Revise symmetric and skewed data. Use statistical summaries, scatterplots, the least squares regression line and correlation to analyse data. Make meaningful comments including interpolation, extrapolation, and discussions on skewness.",
+              "cognitive_levels": [
+                "K",
+                "R"
+              ],
+              "common_misconceptions": [
+                "Confusing correlation with causation",
+                "Not understanding limitations of extrapolation beyond the data range",
+                "Using the regression line for predictions when correlation is weak"
+              ],
+              "teaching_notes": "LEAST SQUARES REGRESSION LINE: y-hat = a + bx, where b is the gradient and a is the y-intercept. The formulae are: b = sum of (xi - x-bar)(yi - y-bar) / sum of (xi - x-bar)^2, and a = y-bar - b times x-bar. The regression line always passes through the point (x-bar, y-bar), the mean point. CALCULATOR METHOD (CASIO fx-82ZA PLUS): Step 1: Press MODE, select STAT (option 2). Step 2: Select A+BX (option 2 for linear regression). Step 3: Enter x-values in the first column and y-values in the second column. Press = after each value. Step 4: After all data is entered, press AC. Step 5: Press SHIFT then STAT (which is button 1). Step 6: Select Reg (option 5). This gives you A (the y-intercept), B (the gradient), and r (the correlation coefficient). Step 7: Select A, press =, to get the value of a. Repeat for B and r. CORRELATION COEFFICIENT r: Measures the strength and direction of a LINEAR relationship. r = 1: perfect positive linear correlation. r = -1: perfect negative linear correlation. r = 0: no linear correlation. Interpretation guide: |r| > 0.8 is strong, 0.5 < |r| < 0.8 is moderate, |r| < 0.5 is weak. WORKED EXAMPLE: Data points (1,3), (2,5), (3,4), (4,8), (5,9). Using calculator: a = 1.1, b = 1.5, r = 0.93. Regression line: y-hat = 1.1 + 1.5x. r = 0.93 indicates a strong positive linear correlation. Predict y when x = 3.5 (interpolation): y-hat = 1.1 + 1.5(3.5) = 6.35. Predict y when x = 10 (extrapolation): y-hat = 1.1 + 1.5(10) = 16.1. WARNING: this extrapolation is unreliable because x = 10 is outside the data range. INTERPOLATION vs EXTRAPOLATION: Interpolation (predicting WITHIN the data range) is generally reliable because you know the trend holds in that range. Extrapolation (predicting BEYOND the data range) is unreliable because the trend may not continue. Always state this distinction in the NSC exam. CORRELATION vs CAUSATION: A strong correlation does NOT mean one variable causes the other. Classic example: ice cream sales and drownings both increase in summer -- they are correlated but ice cream does not cause drowning. Both are caused by a third variable (hot weather). In the NSC, always use phrases like 'there is a strong positive/negative correlation' rather than 'X causes Y'. RESIDUALS: A residual is the difference between the actual y-value and the predicted y-hat value: residual = y - y-hat. A positive residual means the actual value is above the line; negative means below. SKEWNESS: If mean > median, the data is positively skewed (tail to the right). If mean < median, the data is negatively skewed (tail to the left). If mean approximately equals median, the data is approximately symmetric. COMMON ERRORS: (1) Confusing the regression equation y-hat = a + bx with y = mx + c. In stats, a is the y-intercept and b is the gradient (opposite to the usual convention). (2) Entering data incorrectly in the calculator -- always double-check your entries. (3) Making predictions using extrapolation without noting it is unreliable. (4) Claiming causation from correlation. (5) Not using y-hat notation for predicted values. y-hat is a prediction, y is an actual data value. NSC EXAM TIPS: Statistics appears in Paper 2, typically worth 15-20 marks. Calculator work is essential -- you must be able to find a, b, and r quickly. The NSC often gives a scatter plot and asks for the regression line, r-value, and a prediction (with discussion of reliability). Interpretation questions ('describe the relationship', 'is the prediction reliable?') are worth 2-3 marks and require you to refer to the r-value and whether you are interpolating or extrapolating. LINK TO OTHER TOPICS: The regression line is a straight line (connects to linear functions). The concept of best fit connects to the method of least squares (minimising the sum of squared residuals). Skewness connects to the box-and-whisker plots and measures of central tendency from Grade 11."
+            }
+          ],
+          "children": [],
+          "term": 4
+        }
+      ]
+    },
+    {
+      "code": "CAPS-M12-PROB",
+      "name": "Probability",
+      "level": "unit",
+      "sort_order": 9,
+      "exam_weight": 0.05,
+      "sba_relevant": true,
+      "prerequisites": [],
+      "children": [
+        {
+          "code": "CAPS-M12-PROB-COUNT",
+          "name": "Counting Principles and Probability",
+          "level": "topic",
+          "sort_order": 1,
+          "exam_weight": null,
+          "sba_relevant": true,
+          "prerequisites": [],
+          "knowledge_components": [
+            {
+              "code": "caps-m12-prob-count-01",
+              "description": "Review and consolidate all probability rules from Grade 10-11",
+              "bloom_ceiling": "apply",
+              "slip_rate": 0.1,
+              "learning_rate": 0.15,
+              "exam_weight": 0.0,
+              "kc_prerequisites": [],
+              "curriculum_statement": "Revise dependent/independent events, product rule, sum rule, complementary rule, identity P(A or B) = P(A) + P(B) - P(A and B)",
+              "cognitive_levels": [
+                "K",
+                "R"
+              ],
+              "common_misconceptions": [
+                "Confusing independence test P(A∩B) = P(A)·P(B) with the addition rule"
+              ],
+              "teaching_notes": "FOUR KEY PROBABILITY RULES (revision from Grades 10-11): Rule 1 -- COMPLEMENT: P(A') = 1 - P(A). The probability of 'not A' is 1 minus the probability of A. Rule 2 -- ADDITION (OR) RULE: P(A or B) = P(A) + P(B) - P(A and B). For MUTUALLY EXCLUSIVE events (cannot happen together): P(A and B) = 0, so P(A or B) = P(A) + P(B). Rule 3 -- PRODUCT (AND) RULE: P(A and B) = P(A) x P(B|A), where P(B|A) is the probability of B given that A has occurred. For INDEPENDENT events: P(B|A) = P(B), so P(A and B) = P(A) x P(B). Rule 4 -- INDEPENDENCE TEST: Events A and B are independent if and only if P(A and B) = P(A) x P(B). If this equation holds, the events are independent. If not, they are dependent. WORKED EXAMPLE 1 (Two-way table and independence test): 60 learners: 25 play soccer, 30 play cricket, 10 play both. Step 1: Fill in the two-way table. Soccer and Cricket: 10. Soccer only: 15. Cricket only: 20. Neither: 15. Step 2: P(S) = 25/60 = 5/12. P(C) = 30/60 = 1/2. P(S and C) = 10/60 = 1/6. Step 3: Test independence: P(S) x P(C) = 5/12 x 1/2 = 5/24 = 0.2083. P(S and C) = 1/6 = 0.1667. Since 0.2083 is not equal to 0.1667, soccer and cricket are NOT independent. WORKED EXAMPLE 2 (Venn diagram): Using the same data, draw two overlapping circles. S circle: 15 (only S) + 10 (both). C circle: 20 (only C) + 10 (both). Outside both: 60 - 25 - 30 + 10 = 15. P(S or C) = P(S) + P(C) - P(S and C) = 25/60 + 30/60 - 10/60 = 45/60 = 3/4. WORKED EXAMPLE 3 (Tree diagram for dependent events): A bag has 5 red and 3 blue balls. Two balls are drawn without replacement. P(RR) = 5/8 x 4/7 = 20/56 = 5/14. P(RB) = 5/8 x 3/7 = 15/56. P(BR) = 3/8 x 5/7 = 15/56. P(BB) = 3/8 x 2/7 = 6/56 = 3/28. Check: 20/56 + 15/56 + 15/56 + 6/56 = 56/56 = 1. P(same colour) = P(RR) + P(BB) = 20/56 + 6/56 = 26/56 = 13/28. MUTUALLY EXCLUSIVE vs INDEPENDENT: These are DIFFERENT concepts. Mutually exclusive means the events CANNOT occur together: P(A and B) = 0. Independent means one event does not affect the other: P(A and B) = P(A) x P(B). If P(A) > 0 and P(B) > 0, then mutually exclusive events are NEVER independent (because P(A and B) = 0 but P(A) x P(B) > 0). COMMON ERRORS: (1) Confusing the independence test P(A and B) = P(A) x P(B) with the addition rule P(A or B) = P(A) + P(B) - P(A and B). These are different relationships. (2) Not reducing the total when drawing without replacement (dependent events). (3) Assuming events are independent without testing. (4) Forgetting to subtract P(A and B) in the addition rule (double counting). (5) Confusing mutually exclusive with independent -- they are NOT the same thing. NSC EXAM TIPS: Probability appears in Paper 1, typically worth 15 marks. Common question types: Venn diagram problems (fill in regions, calculate probabilities), tree diagram problems (sequential events with or without replacement), two-way contingency tables (test for independence). The NSC expects you to show ALL working, including the independence test calculation. When asked 'are A and B independent?', you must calculate P(A) x P(B), compare with P(A and B), and state your conclusion with a reason. LINK TO OTHER TOPICS: Probability rules connect to the counting principle (next KC) which provides the tools for calculating the total number of outcomes. Venn diagrams connect to set theory. Tree diagrams connect to the fundamental counting principle."
+            },
+            {
+              "code": "caps-m12-prob-count-02",
+              "description": "Apply the fundamental counting principle and solve complex probability problems",
+              "bloom_ceiling": "analyse",
+              "slip_rate": 0.1,
+              "learning_rate": 0.15,
+              "exam_weight": 0.0,
+              "kc_prerequisites": [],
+              "curriculum_statement": "Solve probability problems using Venn diagrams, tree diagrams, two-way contingency tables, and the fundamental counting principle",
+              "cognitive_levels": [
+                "C",
+                "P"
+              ],
+              "common_misconceptions": [
+                "Not accounting for whether order matters (permutation vs combination thinking)",
+                "Forgetting to reduce the total when sampling without replacement",
+                "Double-counting arrangements"
+              ],
+              "teaching_notes": "FUNDAMENTAL COUNTING PRINCIPLE: If event 1 can happen in m ways AND event 2 can happen in n ways, then the total number of ways both events can occur together is m x n. This extends to any number of events: if there are k events with n1, n2, ..., nk possibilities, the total is n1 x n2 x ... x nk. WORKED EXAMPLE 1 (Number plates): A number plate has 3 letters followed by 3 digits. Letters: 26 choices for each of 3 positions = 26 x 26 x 26 = 17 576. Digits: 10 choices for each of 3 positions = 10 x 10 x 10 = 1 000. Total plates: 17 576 x 1 000 = 17 576 000. WORKED EXAMPLE 2 (Without replacement -- no repeats): A 4-digit PIN uses digits 0-9 with no digit repeated. Position 1: 10 choices. Position 2: 9 choices (one digit used). Position 3: 8 choices. Position 4: 7 choices. Total: 10 x 9 x 8 x 7 = 5 040. WORKED EXAMPLE 3 (With specific restrictions): How many 3-digit even numbers can be formed from {1, 2, 3, 4, 5} without repetition? Step 1: The last digit must be even: 2 or 4 (2 choices). Step 2: The first digit: 4 remaining choices (cannot repeat the last digit). Step 3: The second digit: 3 remaining choices. Total: 4 x 3 x 2 = 24. KEY INSIGHT: When there is a restriction, fill the RESTRICTED position first, then fill the remaining positions. WORKED EXAMPLE 4 (Arranging letters in a word): How many ways can the letters in APPLE be arranged? There are 5 letters, but P is repeated twice. Total arrangements = 5! / 2! = 120 / 2 = 60. For a word with all different letters (e.g., DANCE), the answer is simply 5! = 120. APPLYING COUNTING TO PROBABILITY: P(event) = number of favourable outcomes / total number of outcomes. WORKED EXAMPLE 5: A 3-digit code is formed from digits 1-5 with no repeats. What is the probability the code starts with 1? Total codes: 5 x 4 x 3 = 60. Codes starting with 1: 1 x 4 x 3 = 12 (first position is fixed as 1). P(starts with 1) = 12/60 = 1/5. WORKED EXAMPLE 6 (Seating arrangements): 5 people sit in a row. How many arrangements if persons A and B must sit together? Treat A and B as one unit: 4 units to arrange = 4! = 24. But A and B can swap within their unit: 2! = 2. Total: 24 x 2 = 48. FACTORIAL NOTATION: n! = n x (n-1) x (n-2) x ... x 2 x 1. Examples: 5! = 120, 4! = 24, 3! = 6, 1! = 1, 0! = 1 (by definition). COMMON ERRORS: (1) Not reducing the count when sampling without replacement. If the first digit uses one of 10 options, the second has only 9, not 10. (2) Not filling restricted positions first. If the code must start with a vowel, decide the first position first, then fill the rest. (3) Forgetting to account for identical items when arranging letters. APPLE has two P's, so divide by 2!. (4) Double-counting arrangements when objects can be in different orders. (5) Confusing 'with replacement' (choices stay the same) and 'without replacement' (choices reduce). NSC EXAM TIPS: Counting principle questions appear in Paper 1 within the probability section, typically worth 6-10 marks. CAPS Grade 12 focuses on the counting principle applied to probability problems, NOT formal permutation/combination notation (nPr, nCr). However, understanding the logic behind these concepts is essential. The NSC commonly asks: number plate problems, PIN/code formation, seating arrangements, and word arrangements. Questions usually have 2-3 parts that build on each other (total arrangements, then arrangements with a restriction, then probability). Always show the number of choices for each position clearly. LINK TO OTHER TOPICS: The counting principle extends the multiplication rule from probability. It provides the tool for calculating total outcomes and favourable outcomes needed for probability calculations. Factorial notation connects to the binomial theorem (used in expansions). Arrangements of letters connect to the concept of permutations, which is foundational for university-level combinatorics."
+            }
+          ],
+          "children": [],
+          "term": 4
+        }
+      ]
+    }
+  ]
+}
