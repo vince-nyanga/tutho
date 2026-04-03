@@ -2,13 +2,14 @@ import json
 from jinja2 import Environment, FileSystemLoader
 from src.ollama_client import OllamaClient
 from src.tools.curriculum import CurriculumStore
+from src.tools.definitions import create_learning_registry
 
 class Router:
     def __init__(self, client: OllamaClient, curriculum: CurriculumStore):
         self.client = client
         self.curriculum = curriculum
         self.templates = Environment(loader=FileSystemLoader("src/prompts"))
-
+        self.learning_registry = create_learning_registry(curriculum)
 
     async def handle_message(self, message: str, session: dict) -> str:
         classification = await self._classify(message, session)
@@ -49,7 +50,34 @@ class Router:
         return await self.client.classify(prompt, message)
 
     async def _handle_learn(self, message: str, classification: dict, session: dict) -> str:
-        pass
+        topic = None
+
+        if classification.get("topic") and classification.get("grade") and classification.get("subject"):
+            topic = self.curriculum.get_topic(
+                grade=classification["grade"],
+                subject=classification["subject"],
+                topic_query=classification["topic"]
+            )
+
+        template = self.templates.get_template("tutor.j2")
+        system_prompt = template.render(
+            grade=classification["grade"],
+            subject=classification["subject"],
+            language=session.get("language"),
+            language_name=session.get("language_name"),
+            topic=topic
+        )
+
+        tools = self.learning_registry.get_tools()
+
+        messages = [{"role": "user", "content": message}]
+
+        response = await self.client.chat_with_tools(system_prompt, messages, tools)
+
+        if response.tool_calls:
+            return await self._execute_tool_loop(response, system_prompt, messages, tools)
+
+        return response.content
 
     async def _handle_practice(self, message: str, classification: dict, session: dict) -> str:
         pass
@@ -65,3 +93,35 @@ class Router:
 
     async def _handle_off_topic(self, message: str, session: dict) -> str:
         pass
+
+    async def _execute_tool_loop(self, response, system_prompt: str, messages: list[dict], tools: list[dict]) -> str:
+        messages.append({
+            "role": "assistant",
+            "content": None,
+            "tool_calls": [
+                {
+                    "id": tc.id,
+                    "type": "function",
+                    "function": {
+                        "name": tc.function.name,
+                        "arguments": tc.function.arguments
+                    }
+                }
+                for tc in response.tool_calls
+            ]
+        })
+
+        for tool_call in response.tool_calls:
+            result = self.learning_registry.execute(tool_call.function.name, tool_call.function.arguments)
+            messages.append({
+                "role": "tool",
+                "tool_call_id": tool_call.id,
+                "content": json.dumps(result, default=str)
+            })
+
+        follow_up_response = await self.client.chat_with_tools(system_prompt, messages, tools)
+
+        if follow_up_response.tool_calls:
+            return await self._execute_tool_loop(follow_up_response, system_prompt, messages, tools)
+
+        return follow_up_response.content
