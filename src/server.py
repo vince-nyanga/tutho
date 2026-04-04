@@ -1,6 +1,7 @@
 import json
 import sqlite3
 import hashlib
+import os
 from logging import getLogger
 
 logger = getLogger(__name__)
@@ -21,6 +22,7 @@ def hash_phone(phone: str) -> str:
     return hashlib.sha256(phone.encode()).hexdigest()
 
 def init_db():
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
     conn.executescript("""
         CREATE TABLE IF NOT EXISTS sessions (
