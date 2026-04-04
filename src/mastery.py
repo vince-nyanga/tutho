@@ -4,7 +4,7 @@ from logging import getLogger
 
 logger = getLogger(__name__)
 
-DB_PATH = "sessions.db"
+DB_PATH = "/data/thuto.db"
 
 MASTERY_LEVELS = {
     "not_started": (0.0, 0.30),

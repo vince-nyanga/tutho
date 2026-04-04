@@ -13,13 +13,15 @@ except ImportError:
         def GPU(fn): return fn
 
 _pipe = None
+_model = None
+_tokenizer = None
 
 @spaces.GPU
 def _run_inference(model_name, messages, tools=None, max_new_tokens=512):
-    global _pipe
+    global _pipe, _model, _tokenizer
     if _pipe is None:
         import torch
-        from transformers import pipeline
+        from transformers import pipeline, AutoTokenizer, AutoModelForImageTextToText
         logger.info(f"Loading model {model_name}")
         _pipe = pipeline(
             "any-to-any",
@@ -27,9 +29,28 @@ def _run_inference(model_name, messages, tools=None, max_new_tokens=512):
             dtype=torch.float16,
             device_map="auto"
         )
+        _model = _pipe.model
+        _tokenizer = _pipe.tokenizer
         logger.info("Model loaded")
 
-    # Convert plain string content to multimodal format
+    if tools:
+        # Use tokenizer directly for tool calling
+        inputs = _tokenizer.apply_chat_template(
+            messages,
+            tools=tools,
+            return_tensors="pt",
+            return_dict=True,
+            add_generation_prompt=True,
+        ).to(_model.device)
+
+        input_len = inputs["input_ids"].shape[-1]
+        output = _model.generate(**inputs, max_new_tokens=max_new_tokens)
+        new_tokens = output[0][input_len:]
+        raw_text = _tokenizer.decode(new_tokens, skip_special_tokens=False)
+        logger.info(f"Raw tool output: {raw_text[:500]}")
+        return raw_text
+
+    # No tools - use pipeline as before
     converted = []
     for msg in messages:
         content = msg["content"]
@@ -37,13 +58,11 @@ def _run_inference(model_name, messages, tools=None, max_new_tokens=512):
             content = [{"type": "text", "text": content}]
         converted.append({"role": msg["role"], "content": content})
 
-    if tools:
-        return _pipe(converted, tools=tools, max_new_tokens=max_new_tokens, return_full_text=False)
     return _pipe(converted, max_new_tokens=max_new_tokens, return_full_text=False)
 
 
 class TransformersClient(ModelClient):
-    def __init__(self, model_name: str = "google/gemma-4-E2B-it"):
+    def __init__(self, model_name: str = "google/gemma-4-E4B-it"):
         self.model_name = model_name
 
     async def classify(self, system_prompt, user_message, history=None) -> dict:
@@ -57,14 +76,12 @@ class TransformersClient(ModelClient):
         output = _run_inference(self.model_name, messages, max_new_tokens=1024)
 
         text = output[0]["generated_text"].strip()
-        # Strip markdown code fences
         if text.startswith("```"):
             text = text.split("```")[1]
             if text.startswith("json"):
                 text = text[4:]
             text = text.strip()
 
-        # Extract just the first JSON object
         start = text.find("{")
         end = text.rfind("}") + 1
         if start == -1 or end == 0:
@@ -73,15 +90,69 @@ class TransformersClient(ModelClient):
 
     async def chat_with_tools(self, system_prompt, messages, tools) -> object:
         full_messages = [{"role": "system", "content": system_prompt}] + messages
-        output = _run_inference(self.model_name, full_messages, tools=tools, max_new_tokens=2048)
-        content = output[0]["generated_text"]
 
-        logger.info(f"Raw output type: {type(content)}")
-        logger.info(f"Raw output: {str(content)[:500]}")
+        if tools:
+            # Convert tool format for tokenizer
+            tokenizer_tools = []
+            for tool in tools:
+                tokenizer_tools.append(tool["function"])
 
-        if isinstance(content, str):
-            content = content.strip().replace("<turn|>", "").strip()
-        return _TransformersMessage(content)
+            raw_text = _run_inference(self.model_name, full_messages, tools=tokenizer_tools, max_new_tokens=2048)
+            return self._parse_tool_response(raw_text)
+        else:
+            output = _run_inference(self.model_name, full_messages, max_new_tokens=2048)
+            content = output[0]["generated_text"]
+            if isinstance(content, str):
+                content = content.strip().replace("<turn|>", "").strip()
+            return _TransformersMessage(content)
+
+    def _parse_tool_response(self, raw_text: str) -> object:
+        logger.info(f"Parsing tool response: {raw_text[:500]}")
+
+        # Clean up end tokens
+        for token in ["<end_of_turn>", "<eos>", "<turn|>"]:
+            raw_text = raw_text.replace(token, "")
+        raw_text = raw_text.strip()
+
+        # Check for tool call patterns
+        # Gemma 4 outputs tool calls as: ```tool_code\n{"name": ..., "arguments": ...}\n```
+        if "```tool_code" in raw_text:
+            tool_calls = []
+            parts = raw_text.split("```tool_code")
+            text_content = parts[0].strip()
+
+            for part in parts[1:]:
+                end = part.find("```")
+                if end != -1:
+                    json_str = part[:end].strip()
+                else:
+                    json_str = part.strip()
+
+                try:
+                    tc_data = json.loads(json_str)
+                    tool_calls.append(tc_data)
+                    logger.info(f"Parsed tool call: {tc_data}")
+                except json.JSONDecodeError:
+                    logger.warning(f"Failed to parse tool call JSON: {json_str}")
+
+            if tool_calls:
+                return _TransformersMessage(tool_calls)
+
+            if text_content:
+                return _TransformersMessage(text_content)
+
+        # Check for plain JSON tool calls
+        if raw_text.startswith("{") or raw_text.startswith("["):
+            try:
+                data = json.loads(raw_text)
+                if isinstance(data, dict) and "name" in data:
+                    return _TransformersMessage([data])
+                if isinstance(data, list):
+                    return _TransformersMessage(data)
+            except json.JSONDecodeError:
+                pass
+
+        return _TransformersMessage(raw_text)
 
 
 class _TransformersMessage:
