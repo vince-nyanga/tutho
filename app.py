@@ -13,7 +13,10 @@ router = Router(client, curriculum)
 LANGUAGE_NAMES = {
     "en": "English",
     "zu": "isiZulu",
-    "af": "Afrikaans"
+    "xh": "isiXhosa",
+    "st": "Sesotho",
+    "tn": "Setswana",
+    "af": "Afrikaans",
 }
 
 async def chat(message, history, grade, subject, language):
@@ -33,7 +36,14 @@ demo = gr.ChatInterface(
         gr.Dropdown(choices=["10", "11", "12"], value="12", label="Grade"),
         gr.Dropdown(choices=["Mathematics"], value="Mathematics", label="Subject"),
         gr.Dropdown(
-            choices=[("English", "en"), ("isiZulu", "zu"), ("Afrikaans", "af")],
+            choices=[
+                ("English", "en"),
+                ("isiZulu", "zu"),
+                ("isiXhosa", "xh"),
+                ("Sesotho", "st"),
+                ("Setswana", "tn"),
+                ("Afrikaans", "af"),
+            ],
             value="en",
             label="Language"
         ),
