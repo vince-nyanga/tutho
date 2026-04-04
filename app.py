@@ -1,5 +1,6 @@
 import gradio as gr
 import os
+import asyncio
 from logging import getLogger
 from fastapi import Form, Request
 from fastapi.responses import Response
@@ -17,6 +18,17 @@ client = TransformersClient(os.getenv("HF_MODEL", "google/gemma-4-E2B-it"))
 router = Router(client, curriculum)
 
 init_db()
+
+# Warm up model on startup
+async def warmup():
+    logger.info("Warming up model...")
+    try:
+        await client.classify("You are a classifier. Return JSON only: {\"intent\": \"greeting\"}", "hello")
+        logger.info("Model warmed up.")
+    except Exception as e:
+        logger.warning(f"Warmup failed: {e}")
+
+asyncio.run(warmup())
 
 
 async def chat(message, history, grade, subject, language):
