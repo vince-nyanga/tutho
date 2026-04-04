@@ -88,29 +88,6 @@ def create_learning_registry(curriculum: CurriculumStore, phone_hash: str = None
             "correct": mastery.correct,
         }
 
-    def handle_get_progress():
-        if not phone_hash:
-            return {"error": "No student session available"}
-        all_mastery = get_all_mastery(phone_hash)
-        if not all_mastery:
-            return {"message": "No progress tracked yet.", "topics": []}
-        topics = []
-        for m in all_mastery:
-            topics.append({
-                "kc_code": m.kc_code,
-                "mastery": m.p_mastery,
-                "level": m.level,
-                "attempts": m.attempts,
-                "accuracy": f"{m.correct / m.attempts:.0%}" if m.attempts > 0 else "N/A",
-            })
-        topics.sort(key=lambda t: t["mastery"])
-        weakest = [t for t in topics if t["level"] in ("not_started", "developing")]
-        return {
-            "total_topics": len(topics),
-            "weakest_areas": weakest[:3],
-            "topics": topics,
-        }
-
     registry.register(
         tool_name="get_topics",
         description="Look up what topics are available in the CAPS curriculum. You MUST call this before suggesting or confirming a topic so you only recommend real topics.",
@@ -131,12 +108,4 @@ def create_learning_registry(curriculum: CurriculumStore, phone_hash: str = None
         params_model=AssessResponseParams,
         handler=handle_assess_response,
     )
-
-    registry.register(
-        tool_name="get_progress",
-        description="Retrieve the student's mastery progress across all topics. Call this when the student asks how they are doing, what to revise, or when you want to tailor difficulty.",
-        params_model=GetProgressParams,
-        handler=handle_get_progress,
-    )
-
     return registry
