@@ -165,41 +165,45 @@ class Router:
         response = await self.client.chat_with_tools(system_prompt, [{"role": "user", "content": message}], tools=[])
         return response.content
 
-    async def _execute_tool_loop(self, response, system_prompt: str, messages: list[dict], tools: list[dict], registry: ToolRegistry = None) -> str:
-        if registry is None:
-            registry = create_learning_registry(self.curriculum)
 
-        messages.append({
-            "role": "assistant",
-            "content": None,
-            "tool_calls": [
-                {
-                    "id": tc.id,
-                    "type": "function",
-                    "function": {
-                        "name": tc.function.name,
-                        "arguments": tc.function.arguments
-                    }
-                }
-                for tc in response.tool_calls
-            ]
+async def _execute_tool_loop(self, response, system_prompt: str, messages: list[dict], tools: list[dict],
+                             registry: ToolRegistry = None) -> str:
+    if registry is None:
+        registry = create_learning_registry(self.curriculum)
+
+    tool_calls_data = []
+    tool_responses_data = []
+
+    for tool_call in response.tool_calls:
+        logger.info(f"Executing tool: {tool_call.function.name} with args: {tool_call.function.arguments}")
+        args = json.loads(tool_call.function.arguments) if isinstance(tool_call.function.arguments,
+                                                                      str) else tool_call.function.arguments
+        result = registry.execute(tool_call.function.name, tool_call.function.arguments)
+        logger.info(f"Tool result: {json.dumps(result, default=str)[:200]}")
+
+        tool_calls_data.append({
+            "function": {
+                "name": tool_call.function.name,
+                "arguments": args
+            }
+        })
+        tool_responses_data.append({
+            "name": tool_call.function.name,
+            "response": result
         })
 
-        for tool_call in response.tool_calls:
-            logger.info(f"Executing tool: {tool_call.function.name} with args: {tool_call.function.arguments}")
-            result = registry.execute(tool_call.function.name, tool_call.function.arguments)
-            logger.info(f"Tool result: {json.dumps(result, default=str)[:200]}")
-            messages.append({
-                "role": "tool",
-                "tool_call_id": tool_call.id,
-                "content": json.dumps(result, default=str)
-            })
+    messages.append({
+        "role": "assistant",
+        "tool_calls": tool_calls_data,
+        "tool_responses": tool_responses_data,
+    })
 
-        follow_up_response = await self.client.chat_with_tools(system_prompt, messages, tools)
+    follow_up_response = await self.client.chat_with_tools(system_prompt, messages, tools)
 
-        logger.info(f"Follow-up tool calls: {[tc.function.name for tc in follow_up_response.tool_calls] if follow_up_response.tool_calls else 'None'}")
+    logger.info(
+        f"Follow-up tool calls: {[tc.function.name for tc in follow_up_response.tool_calls] if follow_up_response.tool_calls else 'None'}")
 
-        if follow_up_response.tool_calls:
-            return await self._execute_tool_loop(follow_up_response, system_prompt, messages, tools, registry)
+    if follow_up_response.tool_calls:
+        return await self._execute_tool_loop(follow_up_response, system_prompt, messages, tools, registry)
 
-        return follow_up_response.content
+    return follow_up_response.content

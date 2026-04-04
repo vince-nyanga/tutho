@@ -1,3 +1,4 @@
+import re
 import json
 from logging import getLogger
 
@@ -12,51 +13,65 @@ except ImportError:
         @staticmethod
         def GPU(fn): return fn
 
-_pipe = None
 _model = None
-_tokenizer = None
+_processor = None
 
 @spaces.GPU
 def _run_inference(model_name, messages, tools=None, max_new_tokens=512):
-    global _pipe, _model, _tokenizer
-    if _pipe is None:
+    global _model, _processor
+    if _model is None:
         import torch
-        from transformers import pipeline
+        from transformers import AutoProcessor, AutoModelForMultimodalLM
         logger.info(f"Loading model {model_name}")
-        _pipe = pipeline(
-            "any-to-any",
-            model=model_name,
-            dtype=torch.float16,
-            device_map="auto"
+        _model = AutoModelForMultimodalLM.from_pretrained(
+            model_name, dtype="auto", device_map="auto"
         )
-        _model = _pipe.model
-        _tokenizer = _pipe.tokenizer
+        _processor = AutoProcessor.from_pretrained(model_name)
         logger.info("Model loaded")
 
     if tools:
-        inputs = _tokenizer.apply_chat_template(
+        text = _processor.apply_chat_template(
             messages,
             tools=tools,
-            return_tensors="pt",
-            return_dict=True,
+            tokenize=False,
             add_generation_prompt=True,
-        ).to(_model.device)
+        )
+        inputs = _processor(text=text, return_tensors="pt").to(_model.device)
+    else:
+        text = _processor.apply_chat_template(
+            messages,
+            tokenize=False,
+            add_generation_prompt=True,
+        )
+        inputs = _processor(text=text, return_tensors="pt").to(_model.device)
 
-        input_len = inputs["input_ids"].shape[-1]
-        output = _model.generate(**inputs, max_new_tokens=max_new_tokens)
-        new_tokens = output[0][input_len:]
-        raw_text = _tokenizer.decode(new_tokens, skip_special_tokens=False)
-        logger.info(f"Raw tool output: {raw_text[:500]}")
-        return raw_text
+    input_len = inputs["input_ids"].shape[-1]
+    output = _model.generate(**inputs, max_new_tokens=max_new_tokens)
+    new_tokens = output[0][input_len:]
+    raw_text = _processor.decode(new_tokens, skip_special_tokens=False)
+    logger.info(f"Raw output: {raw_text[:500]}")
+    return raw_text
 
-    converted = []
-    for msg in messages:
-        content = msg["content"]
-        if isinstance(content, str):
-            content = [{"type": "text", "text": content}]
-        converted.append({"role": msg["role"], "content": content})
 
-    return _pipe(converted, max_new_tokens=max_new_tokens, return_full_text=False)
+def _extract_tool_calls(text):
+    def cast(v):
+        try:
+            return int(v)
+        except:
+            try:
+                return float(v)
+            except:
+                return {'true': True, 'false': False}.get(v.lower(), v.strip("'\""))
+
+    return [{
+        "name": name,
+        "arguments": {
+            k: cast((v1 or v2).strip())
+            for k, v1, v2 in re.findall(r'(\w+):(?:<\|"\|>(.*?)<\|"\|>|([^,}]*))', args)
+        }
+    } for name, args in re.findall(
+        r"<\|tool_call>call:(\w+)\{(.*?)\}<tool_call\|>", text, re.DOTALL
+    )]
 
 
 class TransformersClient(ModelClient):
@@ -71,9 +86,13 @@ class TransformersClient(ModelClient):
             "role": "user",
             "content": f"{system_prompt}\n\nMessage to classify: {user_message}\n\nRespond with JSON only. No explanation."
         })
-        output = _run_inference(self.model_name, messages, max_new_tokens=1024)
+        raw_text = _run_inference(self.model_name, messages, max_new_tokens=1024)
 
-        text = output[0]["generated_text"].strip()
+        # Clean special tokens
+        for token in ["<end_of_turn>", "<eos>", "<turn|>"]:
+            raw_text = raw_text.replace(token, "")
+        text = raw_text.strip()
+
         if text.startswith("```"):
             text = text.split("```")[1]
             if text.startswith("json"):
@@ -88,60 +107,20 @@ class TransformersClient(ModelClient):
 
     async def chat_with_tools(self, system_prompt, messages, tools) -> object:
         full_messages = [{"role": "system", "content": system_prompt}] + messages
+        raw_text = _run_inference(self.model_name, full_messages, tools=tools if tools else None, max_new_tokens=2048)
+        return self._parse_response(raw_text)
 
-        if tools:
-            raw_text = _run_inference(self.model_name, full_messages, tools=tools, max_new_tokens=2048)
-            return self._parse_tool_response(raw_text)
-        else:
-            output = _run_inference(self.model_name, full_messages, max_new_tokens=2048)
-            content = output[0]["generated_text"]
-            if isinstance(content, str):
-                content = content.strip().replace("<turn|>", "").strip()
-            return _TransformersMessage(content)
+    def _parse_response(self, raw_text: str) -> object:
+        tool_calls = _extract_tool_calls(raw_text)
 
-    def _parse_tool_response(self, raw_text: str) -> object:
-        logger.info(f"Parsing tool response: {raw_text[:500]}")
+        if tool_calls:
+            logger.info(f"Parsed tool calls: {tool_calls}")
+            return _TransformersMessage(tool_calls)
 
-        for token in ["<end_of_turn>", "<eos>", "<turn|>"]:
+        # No tool calls, extract text content
+        for token in ["<end_of_turn>", "<eos>", "<turn|>", "<|tool_response>"]:
             raw_text = raw_text.replace(token, "")
-        raw_text = raw_text.strip()
-
-        if "```tool_code" in raw_text:
-            tool_calls = []
-            parts = raw_text.split("```tool_code")
-            text_content = parts[0].strip()
-
-            for part in parts[1:]:
-                end = part.find("```")
-                if end != -1:
-                    json_str = part[:end].strip()
-                else:
-                    json_str = part.strip()
-
-                try:
-                    tc_data = json.loads(json_str)
-                    tool_calls.append(tc_data)
-                    logger.info(f"Parsed tool call: {tc_data}")
-                except json.JSONDecodeError:
-                    logger.warning(f"Failed to parse tool call JSON: {json_str}")
-
-            if tool_calls:
-                return _TransformersMessage(tool_calls)
-
-            if text_content:
-                return _TransformersMessage(text_content)
-
-        if raw_text.startswith("{") or raw_text.startswith("["):
-            try:
-                data = json.loads(raw_text)
-                if isinstance(data, dict) and "name" in data:
-                    return _TransformersMessage([data])
-                if isinstance(data, list):
-                    return _TransformersMessage(data)
-            except json.JSONDecodeError:
-                pass
-
-        return _TransformersMessage(raw_text)
+        return _TransformersMessage(raw_text.strip())
 
 
 class _TransformersMessage:
