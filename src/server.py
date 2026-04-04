@@ -22,6 +22,8 @@ def hash_phone(phone: str) -> str:
     return hashlib.sha256(phone.encode()).hexdigest()
 
 def init_db():
+    logger.info(f"/data exists: {os.path.isdir('/data')}")
+    logger.info(f"/data writable: {os.access('/data', os.W_OK)}")
     conn = sqlite3.connect(DB_PATH)
     conn.executescript("""
         CREATE TABLE IF NOT EXISTS sessions (
