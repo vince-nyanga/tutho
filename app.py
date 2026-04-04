@@ -37,7 +37,11 @@ async def process_and_reply(phone, message, message_sid):
                 f"Language: {session['language_name']}"
             )
         else:
-            reply_text = await router.handle_message(message, session)
+            reply_text = await router.handle_message(
+                message, session, history=session["history"]
+            )
+            session["history"].append({"role": "user", "content": message})
+            session["history"].append({"role": "assistant", "content": reply_text})
 
         save_session(session)
 
