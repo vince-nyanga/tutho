@@ -2,7 +2,7 @@ import gradio as gr
 import os
 from logging import getLogger
 from fastapi import Form
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import Response
 from twilio.twiml.messaging_response import MessagingResponse
 from src.tools.curriculum import CurriculumStore
 from src.router import Router
@@ -53,40 +53,14 @@ demo = gr.ChatInterface(
 )
 
 
-@demo.app.post("/webhook/whatsapp", response_class=PlainTextResponse)
-async def whatsapp_webhook(From: str = Form(...), Body: str = Form(...)):
-    logger.info(f"Incoming WhatsApp from {hash_phone(From)}: {Body.strip()}")
-    session = get_session(From)
-    message = Body.strip()
-    twiml = MessagingResponse()
-
-    if parse_command(message, session):
-        save_session(session)
-        logger.info(f"Command handled: {message}")
-        twiml.message("Done! ✓")
-        return PlainTextResponse(str(twiml), media_type="application/xml")
-
-    try:
-        response_text = await router.handle_message(message, session, history=session["history"])
-        logger.info(f"Response: {response_text[:100]}...")
-    except Exception as e:
-        logger.error(f"Error handling message: {e}", exc_info=True)
-        response_text = "Sorry, something went wrong. Please try again."
-
-    session["history"].append({"role": "user", "content": message})
-    session["history"].append({"role": "assistant", "content": response_text})
-    save_session(session)
-    twiml.message(response_text)
-    logger.info("TwiML response sent")
-    return PlainTextResponse(str(twiml), media_type="application/xml")
-
-@demo.app.post("/webhook/whatsapp/test", response_class=PlainTextResponse)
-def whatsapp_test(From: str = Form(...), Body: str = Form(...)):
-    logger.info(f"Test webhook hit from {hash_phone(From)}: {Body.strip()}")
-    twiml = MessagingResponse()
-    twiml.message(f"Echo: {Body.strip()}")
-    return PlainTextResponse(str(twiml), media_type="application/xml")
+with gr.WebhooksServer(ui=demo) as webhooks_server:
+    @webhooks_server.post("/webhook/whatsapp")
+    async def whatsapp_webhook(From: str = Form(...), Body: str = Form(...)):
+        logger.info(f"Incoming WhatsApp from {hash_phone(From)}: {Body.strip()}")
+        twiml = MessagingResponse()
+        twiml.message(f"Echo: {Body.strip()}")
+        return Response(content=str(twiml), media_type="application/xml")
 
 
 if __name__ == "__main__":
-    demo.launch()
+    webhooks_server.launch()
