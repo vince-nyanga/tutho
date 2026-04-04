@@ -53,11 +53,19 @@ class TransformersClient(ModelClient):
         messages.append({"role": "user", "content": user_message})
         output = _run_inference(self.model_name, messages, max_new_tokens=256)
         text = output[0]["generated_text"].strip()
+        # Strip markdown code fences
         if text.startswith("```"):
             text = text.split("```")[1]
             if text.startswith("json"):
                 text = text[4:]
-        return json.loads(text.strip())
+            text = text.strip()
+
+        # Extract just the first JSON object
+        start = text.find("{")
+        end = text.rfind("}") + 1
+        if start == -1 or end == 0:
+            raise ValueError(f"No JSON found in model output: {text}")
+        return json.loads(text[start:end])
 
     async def chat_with_tools(self, system_prompt, messages, tools) -> object:
         full_messages = [{"role": "system", "content": system_prompt}] + messages
