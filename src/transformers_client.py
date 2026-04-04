@@ -47,11 +47,15 @@ class TransformersClient(ModelClient):
         self.model_name = model_name
 
     async def classify(self, system_prompt, user_message, history=None) -> dict:
-        messages = [{"role": "system", "content": system_prompt}]
+        messages = []
         if history:
             messages.extend(history[-4:])
-        messages.append({"role": "user", "content": user_message})
-        output = _run_inference(self.model_name, messages, max_new_tokens=256)
+        messages.append({
+            "role": "user",
+            "content": f"{system_prompt}\n\nMessage to classify: {user_message}\n\nRespond with JSON only. No explanation."
+        })
+        output = _run_inference(self.model_name, messages, max_new_tokens=1024)
+
         text = output[0]["generated_text"].strip()
         # Strip markdown code fences
         if text.startswith("```"):
@@ -69,7 +73,7 @@ class TransformersClient(ModelClient):
 
     async def chat_with_tools(self, system_prompt, messages, tools) -> object:
         full_messages = [{"role": "system", "content": system_prompt}] + messages
-        output = _run_inference(self.model_name, full_messages, tools=tools, max_new_tokens=1024)
+        output = _run_inference(self.model_name, full_messages, tools=tools, max_new_tokens=2048)
         return _TransformersMessage(output[0]["generated_text"])
 
 
