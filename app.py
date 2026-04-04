@@ -1,4 +1,3 @@
-
 import logging
 logging.basicConfig(level=logging.INFO)
 
@@ -73,6 +72,9 @@ async def chat(message, history, grade, subject, language):
         "language": language,
         "language_name": LANGUAGE_NAMES.get(language, "English"),
         "phone_hash": "gradio_demo_user",
+        "current_topic": None,
+        "current_grade": None,
+        "current_subject": None,
     }
     response = await router.handle_message(message, session, history=history)
     return response
