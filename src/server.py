@@ -6,7 +6,7 @@ from logging import getLogger
 
 logger = getLogger(__name__)
 
-DB_PATH = "thuto.db"
+DB_PATH = "/data/thuto.db"
 
 LANGUAGE_NAMES = {
     "en": "English",
