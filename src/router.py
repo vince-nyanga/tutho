@@ -65,6 +65,7 @@ class Router:
         logger.info(f"Classifier tools: {[t['function']['name'] for t in classifier_tools]}")
 
         messages = [{"role": "user", "content": message}]
+        messages.extend(history[-4:] if history else [])
         response = await self.client.chat_with_tools(prompt, messages, classifier_tools)
 
         logger.info(f"Classifier tool calls: {[tc.function.name for tc in response.tool_calls] if response.tool_calls else 'None'}")
