@@ -80,6 +80,13 @@ async def whatsapp_webhook(From: str = Form(...), Body: str = Form(...)):
     logger.info("TwiML response sent")
     return PlainTextResponse(str(twiml), media_type="application/xml")
 
+@demo.app.post("/webhook/whatsapp/test", response_class=PlainTextResponse)
+def whatsapp_test(From: str = Form(...), Body: str = Form(...)):
+    logger.info(f"Test webhook hit from {hash_phone(From)}: {Body.strip()}")
+    twiml = MessagingResponse()
+    twiml.message(f"Echo: {Body.strip()}")
+    return PlainTextResponse(str(twiml), media_type="application/xml")
+
 
 if __name__ == "__main__":
     demo.launch()
