@@ -16,6 +16,7 @@ except ImportError:
 _model = None
 _processor = None
 
+
 @spaces.GPU
 def _run_inference(model_name, messages, tools=None, max_new_tokens=512):
     global _model, _processor
@@ -36,17 +37,25 @@ def _run_inference(model_name, messages, tools=None, max_new_tokens=512):
             tokenize=False,
             add_generation_prompt=True,
         )
-        inputs = _processor(text=text, return_tensors="pt").to(_model.device)
     else:
         text = _processor.apply_chat_template(
             messages,
             tokenize=False,
             add_generation_prompt=True,
         )
-        inputs = _processor(text=text, return_tensors="pt").to(_model.device)
 
+    inputs = _processor(text=text, return_tensors="pt").to(_model.device)
     input_len = inputs["input_ids"].shape[-1]
-    output = _model.generate(**inputs, max_new_tokens=max_new_tokens)
+
+    output = _model.generate(
+        **inputs,
+        max_new_tokens=max_new_tokens,
+        do_sample=True,
+        temperature=1.0,
+        top_p=0.95,
+        top_k=64,
+    )
+
     new_tokens = output[0][input_len:]
     raw_text = _processor.decode(new_tokens, skip_special_tokens=False)
     logger.info(f"Raw output: {raw_text[:500]}")
@@ -78,51 +87,37 @@ class TransformersClient(ModelClient):
     def __init__(self, model_name: str = "google/gemma-4-E4B-it"):
         self.model_name = model_name
 
-    async def _classify(self, message: str, session: dict, history: list[dict] = None) -> dict:
-        grade = session.get("grade", 12)
-        subject = session.get("subject", "Mathematics")
+    async def classify(self, system_prompt, user_message, history=None) -> dict:
+        messages = [{"role": "system", "content": system_prompt}]
+        if history:
+            messages.extend(history)
+        messages.append({"role": "user", "content": user_message})
 
-        template = self.templates.get_template("classifier.j2")
-        prompt = template.render(
-            session_grade=grade,
-            session_subject=subject,
-            current_topic=session.get("topic"),
-            available_curriculum=self.curriculum.get_available_curriculum(),
-        )
+        raw_text = _run_inference(self.model_name, messages, max_new_tokens=256)
 
-        # Give classifier just the get_topics tool
-        registry = create_learning_registry(self.curriculum, session.get("phone_hash"))
-        all_tools = registry.get_tools()
-        classifier_tools = [t for t in all_tools if t["function"]["name"] == "get_topics"]
+        # Clean special tokens
+        for token in ["<end_of_turn>", "<eos>", "<turn|>", "<|tool_response>"]:
+            raw_text = raw_text.replace(token, "")
+        raw_text = re.sub(r'<\|.*?\|>', '', raw_text).strip()
 
-        messages = [{"role": "user", "content": message}]
-        response = await self.client.chat_with_tools(prompt, messages, classifier_tools)
-
-        # If model called get_topics, execute it and get final answer
-        if response.tool_calls:
-            result = await self._execute_tool_loop(response, prompt, messages, classifier_tools, registry)
-            # result is now a string — parse the JSON from it
-            return self._extract_json(result)
-
-        # No tool call — parse JSON directly from response
-        return self._extract_json(response.content)
-
-    def _extract_json(self, text: str) -> dict:
-        import json, re
-        # Try to find JSON in the text
-        text = re.sub(r'<\|.*?\|>', '', text).strip()
-        start = text.find('{')
-        end = text.rfind('}') + 1
+        # Extract JSON
+        start = raw_text.find('{')
+        end = raw_text.rfind('}') + 1
         if start >= 0 and end > start:
             try:
-                return json.loads(text[start:end])
+                return json.loads(raw_text[start:end])
             except json.JSONDecodeError:
-                pass
+                logger.warning(f"Failed to parse JSON: {raw_text[start:end]}")
+
         return {"intent": "greeting", "subject": None, "grade": None, "topic": None}
 
     async def chat_with_tools(self, system_prompt, messages, tools) -> object:
         full_messages = [{"role": "system", "content": system_prompt}] + messages
-        raw_text = _run_inference(self.model_name, full_messages, tools=tools if tools else None, max_new_tokens=2048)
+        raw_text = _run_inference(
+            self.model_name, full_messages,
+            tools=tools if tools else None,
+            max_new_tokens=2048
+        )
         return self._parse_response(raw_text)
 
     def _parse_response(self, raw_text: str) -> object:
@@ -132,7 +127,6 @@ class TransformersClient(ModelClient):
             logger.info(f"Parsed tool calls: {tool_calls}")
             return _TransformersMessage(tool_calls)
 
-        # No tool calls, extract text content
         for token in ["<end_of_turn>", "<eos>", "<turn|>", "<|tool_response>"]:
             raw_text = raw_text.replace(token, "")
         return _TransformersMessage(raw_text.strip())
