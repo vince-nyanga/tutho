@@ -1,8 +1,8 @@
-streamlit
 gradio
 jinja2
 openai
 transformers
 torch
+torchvision
 accelerate
 spaces

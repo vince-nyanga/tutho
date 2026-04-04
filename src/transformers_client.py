@@ -71,7 +71,7 @@ class TransformersClient(ModelClient):
             self.pipe = pipeline(
                 "any-to-any",
                 model=self.model_name,
-                torch_dtype=torch.float16,
+                dtype=torch.float16,
                 device_map="auto"
             )
             logger.info("Model loaded")
