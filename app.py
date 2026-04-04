@@ -23,8 +23,6 @@ curriculum = CurriculumStore()
 client = TransformersClient(os.getenv("HF_MODEL", "google/gemma-4-E2B-it"))
 router = Router(client, curriculum)
 
-import subprocess
-subprocess.run(["chmod", "-R", "777", "/data"], capture_output=True)
 init_db()
 
 TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
@@ -74,6 +72,7 @@ async def chat(message, history, grade, subject, language):
         "subject": subject,
         "language": language,
         "language_name": LANGUAGE_NAMES.get(language, "English"),
+        "phone_hash": "gradio_demo_user",
     }
     response = await router.handle_message(message, session, history=history)
     return response

@@ -39,6 +39,11 @@ class ToolRegistry:
 
 # --- Param Models ---
 
+class GetTopicsParams(BaseModel):
+    grade: int = Field(..., description="Grade level (e.g. 12)")
+    subject: str = Field(..., description="Subject name (e.g. Mathematics)")
+
+
 class GetTopicParams(BaseModel):
     grade: int = Field(..., description="Grade level")
     subject: str = Field(..., description="Subject name")
@@ -56,6 +61,12 @@ class GetProgressParams(BaseModel):
 
 def create_learning_registry(curriculum: CurriculumStore, phone_hash: str = None) -> ToolRegistry:
     registry = ToolRegistry()
+
+    def handle_get_topics(grade, subject):
+        topics = curriculum.get_topic_list(grade, subject)
+        if not topics:
+            return {"error": "No topics found for this grade and subject"}
+        return {"topics": [{"name": t["name"], "code": t["code"]} for t in topics]}
 
     def handle_get_topic(grade, subject, topic_query):
         result = curriculum.get_topic(grade, subject, topic_query)
@@ -101,8 +112,15 @@ def create_learning_registry(curriculum: CurriculumStore, phone_hash: str = None
         }
 
     registry.register(
+        tool_name="get_topics",
+        description="Get available curriculum topics for a grade and subject. Call this first to see what topics you can teach.",
+        params_model=GetTopicsParams,
+        handler=handle_get_topics,
+    )
+
+    registry.register(
         tool_name="get_topic",
-        description="Get a topic from the curriculum",
+        description="Get detailed topic information including knowledge components. Call this after get_topics to load a specific topic.",
         params_model=GetTopicParams,
         handler=handle_get_topic,
     )

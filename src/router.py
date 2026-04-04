@@ -1,4 +1,5 @@
 import json
+import re
 import os
 from jinja2 import Environment, FileSystemLoader
 from src.base_client import ModelClient
@@ -48,7 +49,6 @@ class Router:
     async def _classify(self, message: str, session: dict, history: list[dict] = None) -> dict:
         grade = session.get("grade", 12)
         subject = session.get("subject", "Mathematics")
-        topic_list = self.curriculum.get_topic_list(grade, subject)
 
         template = self.templates.get_template("classifier.j2")
         prompt = template.render(
@@ -56,10 +56,43 @@ class Router:
             session_subject=subject,
             current_topic=session.get("topic"),
             available_curriculum=self.curriculum.get_available_curriculum(),
-            available_topics=topic_list,
         )
 
-        return await self.client.classify(prompt, message, history)
+        # Give classifier just the get_topics tool
+        registry = create_learning_registry(self.curriculum, session.get("phone_hash"))
+        all_tools = registry.get_tools()
+        classifier_tools = [t for t in all_tools if t["function"]["name"] == "get_topics"]
+
+        logger.info(f"Classifier tools: {[t['function']['name'] for t in classifier_tools]}")
+
+        messages = [{"role": "user", "content": message}]
+        response = await self.client.chat_with_tools(prompt, messages, classifier_tools)
+
+        logger.info(f"Classifier tool calls: {[tc.function.name for tc in response.tool_calls] if response.tool_calls else 'None'}")
+
+        # If model called get_topics, execute it and get final answer
+        if response.tool_calls:
+            result = await self._execute_tool_loop(response, prompt, messages, classifier_tools, registry)
+            return self._extract_json(result)
+
+        # No tool call — parse JSON directly from response
+        return self._extract_json(response.content)
+
+    def _extract_json(self, text: str) -> dict:
+        """Extract JSON classification from model output text."""
+        if not text:
+            return {"intent": "greeting", "subject": None, "grade": None, "topic": None}
+        # Strip any special tokens
+        cleaned = re.sub(r'<\|.*?\|>', '', text).strip()
+        start = cleaned.find('{')
+        end = cleaned.rfind('}') + 1
+        if start >= 0 and end > start:
+            try:
+                return json.loads(cleaned[start:end])
+            except json.JSONDecodeError:
+                logger.warning(f"Failed to parse classifier JSON: {cleaned[start:end]}")
+        logger.warning(f"No JSON found in classifier output: {text[:200]}")
+        return {"intent": "greeting", "subject": None, "grade": None, "topic": None}
 
     async def _handle_learn(self, message: str, classification: dict, session: dict, history: list[dict] = None) -> str:
         topic = None
@@ -68,7 +101,6 @@ class Router:
         logger.info(f"Language: {session.get('language')}")
         logger.info(f"Language Name: {session.get('language_name')}")
 
-        # Coerce grade to int and fall back to session for follow-ups
         topic_name = classification.get("topic") or session.get("current_topic")
         grade = classification.get("grade") or session.get("current_grade", 12)
         subject = classification.get("subject") or session.get("current_subject", "mathematics")
@@ -85,7 +117,6 @@ class Router:
                 topic_query=topic_name
             )
 
-        # Save topic context to session for follow-up messages
         if topic:
             session["current_topic"] = topic_name
             session["current_grade"] = grade
@@ -170,45 +201,44 @@ class Router:
         response = await self.client.chat_with_tools(system_prompt, [{"role": "user", "content": message}], tools=[])
         return response.content
 
+    async def _execute_tool_loop(self, response, system_prompt: str, messages: list[dict], tools: list[dict],
+                                 registry: ToolRegistry = None) -> str:
+        if registry is None:
+            registry = create_learning_registry(self.curriculum)
 
-async def _execute_tool_loop(self, response, system_prompt: str, messages: list[dict], tools: list[dict],
-                             registry: ToolRegistry = None) -> str:
-    if registry is None:
-        registry = create_learning_registry(self.curriculum)
+        tool_calls_data = []
+        tool_responses_data = []
 
-    tool_calls_data = []
-    tool_responses_data = []
+        for tool_call in response.tool_calls:
+            logger.info(f"Executing tool: {tool_call.function.name} with args: {tool_call.function.arguments}")
+            args = json.loads(tool_call.function.arguments) if isinstance(tool_call.function.arguments,
+                                                                          str) else tool_call.function.arguments
+            result = registry.execute(tool_call.function.name, tool_call.function.arguments)
+            logger.info(f"Tool result: {json.dumps(result, default=str)[:200]}")
 
-    for tool_call in response.tool_calls:
-        logger.info(f"Executing tool: {tool_call.function.name} with args: {tool_call.function.arguments}")
-        args = json.loads(tool_call.function.arguments) if isinstance(tool_call.function.arguments,
-                                                                      str) else tool_call.function.arguments
-        result = registry.execute(tool_call.function.name, tool_call.function.arguments)
-        logger.info(f"Tool result: {json.dumps(result, default=str)[:200]}")
-
-        tool_calls_data.append({
-            "function": {
+            tool_calls_data.append({
+                "function": {
+                    "name": tool_call.function.name,
+                    "arguments": args
+                }
+            })
+            tool_responses_data.append({
                 "name": tool_call.function.name,
-                "arguments": args
-            }
+                "response": result
+            })
+
+        messages.append({
+            "role": "assistant",
+            "tool_calls": tool_calls_data,
+            "tool_responses": tool_responses_data,
         })
-        tool_responses_data.append({
-            "name": tool_call.function.name,
-            "response": result
-        })
 
-    messages.append({
-        "role": "assistant",
-        "tool_calls": tool_calls_data,
-        "tool_responses": tool_responses_data,
-    })
+        follow_up_response = await self.client.chat_with_tools(system_prompt, messages, tools)
 
-    follow_up_response = await self.client.chat_with_tools(system_prompt, messages, tools)
+        logger.info(
+            f"Follow-up tool calls: {[tc.function.name for tc in follow_up_response.tool_calls] if follow_up_response.tool_calls else 'None'}")
 
-    logger.info(
-        f"Follow-up tool calls: {[tc.function.name for tc in follow_up_response.tool_calls] if follow_up_response.tool_calls else 'None'}")
+        if follow_up_response.tool_calls:
+            return await self._execute_tool_loop(follow_up_response, system_prompt, messages, tools, registry)
 
-    if follow_up_response.tool_calls:
-        return await self._execute_tool_loop(follow_up_response, system_prompt, messages, tools, registry)
-
-    return follow_up_response.content
+        return follow_up_response.content
