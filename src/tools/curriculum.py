@@ -107,10 +107,11 @@ class CurriculumStore:
         topics = []
         for code in node_codes:
             node = self._nodes[code]
-            topics.append({
-                "code": code,
-                "name": node["name"],
-            })
+            if node.get("knowledge_components"):
+                topics.append({
+                    "code": code,
+                    "name": node["name"],
+                })
         return topics
 
     def _node_to_result(self, node: dict) -> TopicResult:
