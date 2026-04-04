@@ -28,9 +28,18 @@ def _run_inference(model_name, messages, tools=None, max_new_tokens=512):
             device_map="auto"
         )
         logger.info("Model loaded")
+
+    # Convert plain string content to multimodal format
+    converted = []
+    for msg in messages:
+        content = msg["content"]
+        if isinstance(content, str):
+            content = [{"type": "text", "text": content}]
+        converted.append({"role": msg["role"], "content": content})
+
     if tools:
-        return _pipe(messages, tools=tools, max_new_tokens=max_new_tokens, return_full_text=False)
-    return _pipe(messages, max_new_tokens=max_new_tokens, return_full_text=False)
+        return _pipe(converted, tools=tools, max_new_tokens=max_new_tokens, return_full_text=False)
+    return _pipe(converted, max_new_tokens=max_new_tokens, return_full_text=False)
 
 
 class TransformersClient(ModelClient):
