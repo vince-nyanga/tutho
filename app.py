@@ -25,14 +25,13 @@ async def chat(message, history, grade, subject, language):
 with gr.Blocks(title="Thuto AI") as demo:
     gr.Markdown("# Thuto AI\nAI tutor for South African students (CAPS curriculum)")
 
-    with gr.Row():
-        grade = gr.Dropdown(choices=["10", "11", "12"], value="12", label="Grade")
-        subject = gr.Dropdown(choices=["Mathematics"], value="Mathematics", label="Subject")
-        language = gr.Dropdown(
-            choices=[("English", "en"), ("isiZulu", "zu"), ("Afrikaans", "af")],
-            value="en",
-            label="Language"
-        )
+    grade = gr.Dropdown(choices=["10", "11", "12"], value="12", label="Grade")
+    subject = gr.Dropdown(choices=["Mathematics"], value="Mathematics", label="Subject")
+    language = gr.Dropdown(
+        choices=[("English", "en"), ("isiZulu", "zu"), ("Afrikaans", "af")],
+        value="en",
+        label="Language"
+    )
 
     gr.ChatInterface(
         fn=lambda msg, hist: asyncio.run(chat(msg, hist, grade.value, subject.value, language.value)),

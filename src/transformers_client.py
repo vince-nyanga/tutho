@@ -74,7 +74,10 @@ class TransformersClient(ModelClient):
     async def chat_with_tools(self, system_prompt, messages, tools) -> object:
         full_messages = [{"role": "system", "content": system_prompt}] + messages
         output = _run_inference(self.model_name, full_messages, tools=tools, max_new_tokens=2048)
-        return _TransformersMessage(output[0]["generated_text"])
+        content = output[0]["generated_text"]
+        if isinstance(content, str):
+            content = content.strip().replace("<turn|>", "").strip()
+        return _TransformersMessage(content)
 
 
 class _TransformersMessage:
