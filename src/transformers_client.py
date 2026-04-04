@@ -21,7 +21,7 @@ def _run_inference(model_name, messages, tools=None, max_new_tokens=512):
     global _pipe, _model, _tokenizer
     if _pipe is None:
         import torch
-        from transformers import pipeline, AutoTokenizer, AutoModelForImageTextToText
+        from transformers import pipeline
         logger.info(f"Loading model {model_name}")
         _pipe = pipeline(
             "any-to-any",
@@ -34,7 +34,6 @@ def _run_inference(model_name, messages, tools=None, max_new_tokens=512):
         logger.info("Model loaded")
 
     if tools:
-        # Use tokenizer directly for tool calling
         inputs = _tokenizer.apply_chat_template(
             messages,
             tools=tools,
@@ -50,7 +49,6 @@ def _run_inference(model_name, messages, tools=None, max_new_tokens=512):
         logger.info(f"Raw tool output: {raw_text[:500]}")
         return raw_text
 
-    # No tools - use pipeline as before
     converted = []
     for msg in messages:
         content = msg["content"]
@@ -92,12 +90,7 @@ class TransformersClient(ModelClient):
         full_messages = [{"role": "system", "content": system_prompt}] + messages
 
         if tools:
-            # Convert tool format for tokenizer
-            tokenizer_tools = []
-            for tool in tools:
-                tokenizer_tools.append(tool["function"])
-
-            raw_text = _run_inference(self.model_name, full_messages, tools=tokenizer_tools, max_new_tokens=2048)
+            raw_text = _run_inference(self.model_name, full_messages, tools=tools, max_new_tokens=2048)
             return self._parse_tool_response(raw_text)
         else:
             output = _run_inference(self.model_name, full_messages, max_new_tokens=2048)
@@ -109,13 +102,10 @@ class TransformersClient(ModelClient):
     def _parse_tool_response(self, raw_text: str) -> object:
         logger.info(f"Parsing tool response: {raw_text[:500]}")
 
-        # Clean up end tokens
         for token in ["<end_of_turn>", "<eos>", "<turn|>"]:
             raw_text = raw_text.replace(token, "")
         raw_text = raw_text.strip()
 
-        # Check for tool call patterns
-        # Gemma 4 outputs tool calls as: ```tool_code\n{"name": ..., "arguments": ...}\n```
         if "```tool_code" in raw_text:
             tool_calls = []
             parts = raw_text.split("```tool_code")
@@ -141,7 +131,6 @@ class TransformersClient(ModelClient):
             if text_content:
                 return _TransformersMessage(text_content)
 
-        # Check for plain JSON tool calls
         if raw_text.startswith("{") or raw_text.startswith("["):
             try:
                 data = json.loads(raw_text)

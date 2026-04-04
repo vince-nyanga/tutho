@@ -7,5 +7,6 @@ torchvision
 accelerate
 spaces
 librosa
+libsql_experimental
 twilio
 requests

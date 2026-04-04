@@ -1,12 +1,21 @@
 import json
-import sqlite3
 import hashlib
 import os
 from logging import getLogger
 
 logger = getLogger(__name__)
 
-DB_PATH = "/data/thuto.db"
+TURSO_DATABASE_URL = os.environ.get("TURSO_DATABASE_URL", "")
+TURSO_AUTH_TOKEN = os.environ.get("TURSO_AUTH_TOKEN", "")
+
+if TURSO_DATABASE_URL and TURSO_AUTH_TOKEN:
+    import libsql_experimental as dblib
+    logger.info("Using Turso database")
+else:
+    import sqlite3 as dblib
+    logger.info("Using local SQLite database")
+
+DB_PATH = "thuto.db"
 
 LANGUAGE_NAMES = {
     "en": "English",
@@ -18,13 +27,21 @@ LANGUAGE_NAMES = {
 }
 
 
+def get_connection():
+    if TURSO_DATABASE_URL and TURSO_AUTH_TOKEN:
+        conn = dblib.connect(DB_PATH, sync_url=TURSO_DATABASE_URL, auth_token=TURSO_AUTH_TOKEN)
+        conn.sync()
+        return conn
+    else:
+        return dblib.connect(DB_PATH)
+
+
 def hash_phone(phone: str) -> str:
     return hashlib.sha256(phone.encode()).hexdigest()
 
+
 def init_db():
-    logger.info(f"/data exists: {os.path.isdir('/data')}")
-    logger.info(f"/data writable: {os.access('/data', os.W_OK)}")
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_connection()
     conn.executescript("""
         CREATE TABLE IF NOT EXISTS sessions (
             phone_hash TEXT PRIMARY KEY,
@@ -44,11 +61,14 @@ def init_db():
             PRIMARY KEY (phone_hash, kc_code)
         );
     """)
+    conn.commit()
     conn.close()
+    logger.info(f"Database initialized (turso={bool(TURSO_DATABASE_URL)})")
+
 
 def get_session(phone: str) -> dict:
     phone_hash = hash_phone(phone)
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_connection()
     row = conn.execute(
         "SELECT * FROM sessions WHERE phone_hash = ?", (phone_hash,)
     ).fetchone()
@@ -73,7 +93,7 @@ def get_session(phone: str) -> dict:
 
 
 def save_session(session: dict):
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_connection()
     conn.execute("""
         INSERT INTO sessions (phone_hash, history, grade, subject, language, language_name)
         VALUES (?, ?, ?, ?, ?, ?)
@@ -96,7 +116,6 @@ def save_session(session: dict):
 
 
 def parse_command(message: str, session: dict) -> bool:
-    """Handle /lang zu, /grade 11, /reset commands. Returns True if handled."""
     if not message.startswith("/"):
         return False
 

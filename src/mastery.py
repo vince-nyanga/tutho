@@ -1,10 +1,7 @@
-import sqlite3
 from dataclasses import dataclass
 from logging import getLogger
 
 logger = getLogger(__name__)
-
-DB_PATH = "/data/thuto.db"
 
 MASTERY_LEVELS = {
     "not_started": (0.0, 0.30),
@@ -36,7 +33,8 @@ class KCMastery:
 
 
 def get_mastery(phone_hash: str, kc_code: str, default_p_l0: float = 0.10) -> KCMastery:
-    conn = sqlite3.connect(DB_PATH)
+    from src.server import get_connection
+    conn = get_connection()
     row = conn.execute(
         "SELECT p_mastery, attempts, correct FROM mastery WHERE phone_hash = ? AND kc_code = ?",
         (phone_hash, kc_code),
@@ -47,7 +45,8 @@ def get_mastery(phone_hash: str, kc_code: str, default_p_l0: float = 0.10) -> KC
     return KCMastery(phone_hash, kc_code, default_p_l0, 0, 0)
 
 def get_all_mastery(phone_hash: str) -> list[KCMastery]:
-    conn = sqlite3.connect(DB_PATH)
+    from src.server import get_connection
+    conn = get_connection()
     rows = conn.execute(
         "SELECT kc_code, p_mastery, attempts, correct FROM mastery WHERE phone_hash = ?",
         (phone_hash,),
@@ -56,7 +55,8 @@ def get_all_mastery(phone_hash: str) -> list[KCMastery]:
     return [KCMastery(phone_hash, row[0], row[1], row[2], row[3]) for row in rows]
 
 def save_mastery(mastery: KCMastery):
-    conn = sqlite3.connect(DB_PATH)
+    from src.server import get_connection
+    conn = get_connection()
     conn.execute("""
         INSERT INTO mastery (phone_hash, kc_code, p_mastery, attempts, correct)
         VALUES (?, ?, ?, ?, ?)
