@@ -1,0 +1,7 @@
+streamlit
+jinja2
+openai
+transformers
+torch
+accelerate
+spaces
