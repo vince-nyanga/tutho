@@ -1,26 +1,18 @@
 import gradio as gr
-import asyncio
 import os
-from fastapi import FastAPI
-from gradio.routes import mount_gradio_app
+from fastapi import Form
+from fastapi.responses import PlainTextResponse
+from twilio.twiml.messaging_response import MessagingResponse
 from src.tools.curriculum import CurriculumStore
 from src.router import Router
 from src.transformers_client import TransformersClient
-from src.server import create_server
+from src.server import init_db, get_session, save_session, parse_command, LANGUAGE_NAMES
 
 curriculum = CurriculumStore()
 client = TransformersClient(os.getenv("HF_MODEL", "google/gemma-4-E2B-it"))
 router = Router(client, curriculum)
 
-LANGUAGE_NAMES = {
-    "en": "English",
-    "zu": "isiZulu",
-    "xh": "isiXhosa",
-    "st": "Sesotho",
-    "tn": "Setswana",
-    "af": "Afrikaans",
-}
-
+init_db()
 
 async def chat(message, history, grade, subject, language):
     session = {
@@ -56,8 +48,29 @@ demo = gr.ChatInterface(
     type="messages",
 )
 
-fastapi_app = create_server(curriculum, router)
-app = mount_gradio_app(fastapi_app, demo, path="/")
+
+@demo.app.post("/webhook/whatsapp", response_class=PlainTextResponse)
+async def whatsapp_webhook(From: str = Form(...), Body: str = Form(...)):
+    session = get_session(From)
+    message = Body.strip()
+    twiml = MessagingResponse()
+
+    if parse_command(message, session):
+        save_session(session)
+        twiml.message("Done! ✓")
+        return str(twiml)
+
+    try:
+        response_text = await router.handle_message(message, session, history=session["history"])
+    except Exception as e:
+        response_text = "Sorry, something went wrong. Please try again."
+
+    session["history"].append({"role": "user", "content": message})
+    session["history"].append({"role": "assistant", "content": response_text})
+    save_session(session)
+    twiml.message(response_text)
+    return str(twiml)
+
 
 if __name__ == "__main__":
     demo.launch()

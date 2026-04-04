@@ -1,10 +1,6 @@
 import json
 import sqlite3
 import hashlib
-import os
-from fastapi import FastAPI, Request, Form
-from fastapi.responses import PlainTextResponse
-from twilio.twiml.messaging_response import MessagingResponse
 from logging import getLogger
 
 logger = getLogger(__name__)
@@ -91,7 +87,7 @@ def save_session(session: dict):
 
 
 def parse_command(message: str, session: dict) -> bool:
-    """Handle special commands like /lang zu or /grade 11. Returns True if handled."""
+    """Handle /lang zu, /grade 11, /reset commands. Returns True if handled."""
     if not message.startswith("/"):
         return False
 
@@ -117,44 +113,3 @@ def parse_command(message: str, session: dict) -> bool:
         return True
 
     return False
-
-
-def create_server(curriculum, router) -> FastAPI:
-    init_db()
-    server = FastAPI()
-
-    @server.post("/webhook/whatsapp", response_class=PlainTextResponse)
-    async def whatsapp_webhook(
-        From: str = Form(...),
-        Body: str = Form(...),
-    ):
-        phone = From
-        message = Body.strip()
-        logger.info(f"Incoming message from {hash_phone(phone)}: {message}")
-
-        session = get_session(phone)
-        history = session["history"]
-
-        twiml = MessagingResponse()
-
-        # Handle commands
-        if parse_command(message, session):
-            save_session(session)
-            twiml.message("Done! ✓")
-            return str(twiml)
-
-        try:
-            response_text = await router.handle_message(message, session, history=history)
-        except Exception as e:
-            logger.error(f"Error handling message: {e}")
-            response_text = "Sorry, something went wrong. Please try again."
-
-        history.append({"role": "user", "content": message})
-        history.append({"role": "assistant", "content": response_text})
-        session["history"] = history
-        save_session(session)
-
-        twiml.message(response_text)
-        return str(twiml)
-
-    return server
