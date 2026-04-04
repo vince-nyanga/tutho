@@ -113,28 +113,28 @@ def create_learning_registry(curriculum: CurriculumStore, phone_hash: str = None
 
     registry.register(
         tool_name="get_topics",
-        description="Get available curriculum topics for a grade and subject. Call this first to see what topics you can teach.",
+        description="Look up what topics are available in the CAPS curriculum. You MUST call this before suggesting or confirming a topic so you only recommend real topics.",
         params_model=GetTopicsParams,
         handler=handle_get_topics,
     )
 
     registry.register(
         tool_name="get_topic",
-        description="Get detailed topic information including knowledge components. Call this after get_topics to load a specific topic.",
+        description="Fetch full details for a specific topic including teaching notes, misconceptions, and knowledge components. Call this when you need curriculum detail for a topic you are about to teach.",
         params_model=GetTopicParams,
         handler=handle_get_topic,
     )
 
     registry.register(
         tool_name="assess_response",
-        description="Record whether the student answered correctly and update their mastery level for a knowledge component. Call this after the student attempts a question or demonstrates understanding.",
+        description="WHEN a student answers a question you asked, you MUST call this tool to record whether they got it right. This updates their mastery score. Do NOT judge correctness yourself without calling this tool first.",
         params_model=AssessResponseParams,
         handler=handle_assess_response,
     )
 
     registry.register(
         tool_name="get_progress",
-        description="Get the student's mastery progress across all topics they have worked on. Use this when the student asks how they are doing or what to study next.",
+        description="Retrieve the student's mastery progress across all topics. Call this when the student asks how they are doing, what to revise, or when you want to tailor difficulty.",
         params_model=GetProgressParams,
         handler=handle_get_progress,
     )
