@@ -1,10 +1,12 @@
 import gradio as gr
 import os
-import asyncio
+import requests
 from logging import getLogger
-from fastapi import Form, Request
+from requests.auth import HTTPBasicAuth
+from fastapi import Form, Request, BackgroundTasks
 from fastapi.responses import Response
 from twilio.twiml.messaging_response import MessagingResponse
+from twilio.rest import Client as TwilioClient
 from huggingface_hub import WebhooksServer
 from src.tools.curriculum import CurriculumStore
 from src.router import Router
@@ -19,16 +21,56 @@ router = Router(client, curriculum)
 
 init_db()
 
-# Warm up model on startup
-async def warmup():
-    logger.info("Warming up model...")
-    try:
-        await client.classify("You are a classifier. Return JSON only: {\"intent\": \"greeting\"}", "hello")
-        logger.info("Model warmed up.")
-    except Exception as e:
-        logger.warning(f"Warmup failed: {e}")
 
-asyncio.run(warmup())
+def send_typing_indicator(phone: str, message_sid: str):
+    try:
+        messaging_service_sid = os.getenv("TWILIO_MESSAGING_SERVICE_SID")
+        if not messaging_service_sid:
+            logger.warning("No TWILIO_MESSAGING_SERVICE_SID set, skipping typing indicator")
+            return
+        requests.post(
+            f"https://messaging.twilio.com/v2/Services/{messaging_service_sid}/Indicators/Typing",
+            data={
+                "From": os.getenv("TWILIO_WHATSAPP_NUMBER"),
+                "To": phone,
+                "MessageSid": message_sid,
+            },
+            auth=HTTPBasicAuth(
+                os.getenv("TWILIO_ACCOUNT_SID"),
+                os.getenv("TWILIO_AUTH_TOKEN"),
+            ),
+        )
+        logger.info("Typing indicator sent")
+    except Exception as e:
+        logger.warning(f"Typing indicator failed: {e}")
+
+
+async def process_and_reply(phone: str, message: str, message_sid: str):
+    send_typing_indicator(phone, message_sid)
+
+    session = get_session(phone)
+    logger.info(f"Processing message: {message}")
+    try:
+        response_text = await router.handle_message(message, session, history=session["history"])
+        logger.info(f"Response: {response_text[:100]}...")
+    except Exception as e:
+        logger.error(f"Error: {e}", exc_info=True)
+        response_text = "Sorry, something went wrong. Please try again."
+
+    session["history"].append({"role": "user", "content": message})
+    session["history"].append({"role": "assistant", "content": response_text})
+    save_session(session)
+
+    twilio_client = TwilioClient(
+        os.getenv("TWILIO_ACCOUNT_SID"),
+        os.getenv("TWILIO_AUTH_TOKEN"),
+    )
+    twilio_client.messages.create(
+        from_=os.getenv("TWILIO_WHATSAPP_NUMBER"),
+        to=phone,
+        body=response_text,
+    )
+    logger.info("Reply sent via Twilio API")
 
 
 async def chat(message, history, grade, subject, language):
@@ -57,7 +99,7 @@ demo = gr.ChatInterface(
                 ("Afrikaans", "af"),
             ],
             value="en",
-            label="Language"
+            label="Language",
         ),
     ],
     title="Thuto AI",
@@ -69,10 +111,11 @@ app = WebhooksServer(ui=demo)
 
 
 @app.add_webhook("/whatsapp")
-async def whatsapp_webhook(request: Request):
+async def whatsapp_webhook(request: Request, background_tasks: BackgroundTasks):
     form = await request.form()
     phone = form.get("From", "")
     message = form.get("Body", "").strip()
+    message_sid = form.get("MessageSid", "")
     logger.info(f"Incoming WhatsApp from {hash_phone(phone)}: {message}")
 
     session = get_session(phone)
@@ -84,17 +127,7 @@ async def whatsapp_webhook(request: Request):
         twiml.message("Done! ✓")
         return Response(content=str(twiml), media_type="application/xml")
 
-    try:
-        response_text = await router.handle_message(message, session, history=session["history"])
-        logger.info(f"Response: {response_text[:100]}...")
-    except Exception as e:
-        logger.error(f"Error: {e}", exc_info=True)
-        response_text = "Sorry, something went wrong. Please try again."
-
-    session["history"].append({"role": "user", "content": message})
-    session["history"].append({"role": "assistant", "content": response_text})
-    save_session(session)
-    twiml.message(response_text)
+    background_tasks.add_task(process_and_reply, phone, message, message_sid)
     return Response(content=str(twiml), media_type="application/xml")
 
 
