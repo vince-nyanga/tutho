@@ -4,6 +4,7 @@ from logging import getLogger
 from fastapi import Form
 from fastapi.responses import Response
 from twilio.twiml.messaging_response import MessagingResponse
+from huggingface_hub import WebhooksServer
 from src.tools.curriculum import CurriculumStore
 from src.router import Router
 from src.transformers_client import TransformersClient
@@ -52,15 +53,18 @@ demo = gr.ChatInterface(
     type="messages",
 )
 
+app = WebhooksServer(ui=demo)
 
-with gr.WebhooksServer(ui=demo) as webhooks_server:
-    @webhooks_server.post("/webhook/whatsapp")
-    async def whatsapp_webhook(From: str = Form(...), Body: str = Form(...)):
-        logger.info(f"Incoming WhatsApp from {hash_phone(From)}: {Body.strip()}")
-        twiml = MessagingResponse()
-        twiml.message(f"Echo: {Body.strip()}")
-        return Response(content=str(twiml), media_type="application/xml")
-
+@app.add_webhook("/webhook/whatsapp")
+async def whatsapp_webhook(request: Request):
+    from fastapi import Request
+    form = await request.form()
+    phone = form.get("From", "")
+    message = form.get("Body", "").strip()
+    logger.info(f"Incoming WhatsApp from {hash_phone(phone)}: {message}")
+    twiml = MessagingResponse()
+    twiml.message(f"Echo: {message}")
+    return Response(content=str(twiml), media_type="application/xml")
 
 if __name__ == "__main__":
-    webhooks_server.launch()
+    app.launch()
