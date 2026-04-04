@@ -1,3 +1,4 @@
+
 import gradio as gr
 import asyncio
 import os
@@ -6,10 +7,9 @@ from src.router import Router
 from src.transformers_client import TransformersClient
 
 
-
 curriculum = CurriculumStore()
 client = TransformersClient(os.getenv("HF_MODEL", "google/gemma-4-E2B-it"))
-router = Router(client, curriculum)
+router = Router(curriculum, client=client)
 
 
 async def chat(message, history, grade, subject, language):
@@ -18,13 +18,7 @@ async def chat(message, history, grade, subject, language):
         "subject": subject,
         "language": language,
     }
-    # Convert Gradio history format to our format
-    messages = []
-    for human, assistant in history:
-        messages.append({"role": "user", "content": human})
-        messages.append({"role": "assistant", "content": assistant})
-
-    response = await router.handle_message(message, session, history=messages)
+    response = await router.handle_message(message, session, history=history)
     return response
 
 
@@ -42,8 +36,9 @@ with gr.Blocks(title="Thuto AI") as demo:
 
     gr.ChatInterface(
         fn=lambda msg, hist: asyncio.run(chat(msg, hist, grade.value, subject.value, language.value)),
-        chatbot=gr.Chatbot(height=500),
+        chatbot=gr.Chatbot(height=500, type="messages"),
         textbox=gr.Textbox(placeholder="Ask me anything about your studies...", scale=7),
+        type="messages",
     )
 
 
