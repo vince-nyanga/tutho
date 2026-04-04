@@ -7,3 +7,4 @@ torchvision
 accelerate
 spaces
 librosa
+twilio

@@ -1,14 +1,16 @@
 import gradio as gr
 import asyncio
 import os
+from fastapi import FastAPI
+from gradio.routes import mount_gradio_app
 from src.tools.curriculum import CurriculumStore
 from src.router import Router
 from src.transformers_client import TransformersClient
+from src.server import create_server
 
 curriculum = CurriculumStore()
 client = TransformersClient(os.getenv("HF_MODEL", "google/gemma-4-E2B-it"))
 router = Router(client, curriculum)
-
 
 LANGUAGE_NAMES = {
     "en": "English",
@@ -18,6 +20,7 @@ LANGUAGE_NAMES = {
     "tn": "Setswana",
     "af": "Afrikaans",
 }
+
 
 async def chat(message, history, grade, subject, language):
     session = {
@@ -52,6 +55,9 @@ demo = gr.ChatInterface(
     description="AI tutor for South African students (CAPS curriculum)",
     type="messages",
 )
+
+fastapi_app = create_server(curriculum, router)
+app = mount_gradio_app(fastapi_app, demo, path="/")
 
 if __name__ == "__main__":
     demo.launch()
