@@ -1,18 +1,22 @@
 import gradio as gr
 import os
+from logging import getLogger
 from fastapi import Form
 from fastapi.responses import PlainTextResponse
 from twilio.twiml.messaging_response import MessagingResponse
 from src.tools.curriculum import CurriculumStore
 from src.router import Router
 from src.transformers_client import TransformersClient
-from src.server import init_db, get_session, save_session, parse_command, LANGUAGE_NAMES
+from src.server import init_db, get_session, save_session, parse_command, LANGUAGE_NAMES, hash_phone
+
+logger = getLogger(__name__)
 
 curriculum = CurriculumStore()
 client = TransformersClient(os.getenv("HF_MODEL", "google/gemma-4-E2B-it"))
 router = Router(client, curriculum)
 
 init_db()
+
 
 async def chat(message, history, grade, subject, language):
     session = {
@@ -51,25 +55,30 @@ demo = gr.ChatInterface(
 
 @demo.app.post("/webhook/whatsapp", response_class=PlainTextResponse)
 async def whatsapp_webhook(From: str = Form(...), Body: str = Form(...)):
+    logger.info(f"Incoming WhatsApp from {hash_phone(From)}: {Body.strip()}")
     session = get_session(From)
     message = Body.strip()
     twiml = MessagingResponse()
 
     if parse_command(message, session):
         save_session(session)
+        logger.info(f"Command handled: {message}")
         twiml.message("Done! ✓")
-        return str(twiml)
+        return PlainTextResponse(str(twiml), media_type="application/xml")
 
     try:
         response_text = await router.handle_message(message, session, history=session["history"])
+        logger.info(f"Response: {response_text[:100]}...")
     except Exception as e:
+        logger.error(f"Error handling message: {e}", exc_info=True)
         response_text = "Sorry, something went wrong. Please try again."
 
     session["history"].append({"role": "user", "content": message})
     session["history"].append({"role": "assistant", "content": response_text})
     save_session(session)
     twiml.message(response_text)
-    return str(twiml)
+    logger.info("TwiML response sent")
+    return PlainTextResponse(str(twiml), media_type="application/xml")
 
 
 if __name__ == "__main__":
