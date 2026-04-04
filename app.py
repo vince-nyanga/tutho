@@ -57,26 +57,24 @@ async def process_and_reply(phone, message, message_sid):
     try:
         send_typing_indicator(phone, message_sid)
 
-        command_result = parse_command(message)
+        hashed = hash_phone(phone)
+        session = get_session(hashed)
+        if "grade" not in session:
+            session["grade"] = 10
+        if "subject" not in session:
+            session["subject"] = "Mathematics"
+        if "language" not in session:
+            session["language"] = "en"
+        session["language_name"] = LANGUAGE_NAMES.get(session["language"], "English")
+
+        command_result = parse_command(message, session)
         if command_result:
             reply_text = command_result["reply"]
-            hashed = hash_phone(phone)
-            session = get_session(hashed)
             session.update(command_result.get("updates", {}))
-            save_session(hashed, session)
         else:
-            hashed = hash_phone(phone)
-            session = get_session(hashed)
-            if "grade" not in session:
-                session["grade"] = 10
-            if "subject" not in session:
-                session["subject"] = "Mathematics"
-            if "language" not in session:
-                session["language"] = "en"
-            session["language_name"] = LANGUAGE_NAMES.get(session["language"], "English")
-
             reply_text = await router.handle_message(message, session)
-            save_session(hashed, session)
+
+        save_session(hashed, session)
 
         logger.info(f"Sending reply to {hash_phone(phone)}: {reply_text[:100]}...")
         url = f"https://api.twilio.com/2010-04-01/Accounts/{TWILIO_ACCOUNT_SID}/Messages.json"
@@ -92,7 +90,6 @@ async def process_and_reply(phone, message, message_sid):
         logger.info(f"Twilio send response: {resp.status_code} {resp.text[:200]}")
     except Exception as e:
         logger.error(f"Error in background task: {e}", exc_info=True)
-
 
 async def chat(message, history, grade, subject, language):
     session = {
