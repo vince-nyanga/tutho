@@ -1,3 +1,7 @@
+
+import logging
+logging.basicConfig(level=logging.INFO)
+
 import gradio as gr
 import os
 import requests

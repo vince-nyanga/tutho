@@ -20,10 +20,9 @@ LANGUAGE_NAMES = {
 def hash_phone(phone: str) -> str:
     return hashlib.sha256(phone.encode()).hexdigest()
 
-
 def init_db():
     conn = sqlite3.connect(DB_PATH)
-    conn.execute("""
+    conn.executescript("""
         CREATE TABLE IF NOT EXISTS sessions (
             phone_hash TEXT PRIMARY KEY,
             history TEXT DEFAULT '[]',
@@ -31,11 +30,18 @@ def init_db():
             subject TEXT DEFAULT 'Mathematics',
             language TEXT DEFAULT 'en',
             language_name TEXT DEFAULT 'English'
-        )
-    """)
-    conn.commit()
-    conn.close()
+        );
 
+        CREATE TABLE IF NOT EXISTS mastery (
+            phone_hash TEXT,
+            kc_code TEXT,
+            p_mastery REAL DEFAULT 0.1,
+            attempts INTEGER DEFAULT 0,
+            correct INTEGER DEFAULT 0,
+            PRIMARY KEY (phone_hash, kc_code)
+        );
+    """)
+    conn.close()
 
 def get_session(phone: str) -> dict:
     phone_hash = hash_phone(phone)

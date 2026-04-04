@@ -12,3 +12,5 @@ wheels/
 # IntelliJ
 
 .idea/
+
+*.db
