@@ -1,7 +1,7 @@
 import gradio as gr
 import os
 from logging import getLogger
-from fastapi import Form
+from fastapi import Form, Request
 from fastapi.responses import Response
 from twilio.twiml.messaging_response import MessagingResponse
 from huggingface_hub import WebhooksServer
@@ -57,7 +57,6 @@ app = WebhooksServer(ui=demo)
 
 @app.add_webhook("/webhook/whatsapp")
 async def whatsapp_webhook(request: Request):
-    from fastapi import Request
     form = await request.form()
     phone = form.get("From", "")
     message = form.get("Body", "").strip()
