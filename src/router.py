@@ -105,6 +105,8 @@ class Router:
         system_prompt = template.render(
             session_grade=session.get("grade"),
             session_subject=session.get("subject"),
+            language=session.get("language"),
+            language_name=session.get("language_name"),
         )
         response = await self.client.chat_with_tools(system_prompt, [{"role": "user", "content": message}], tools=[])
         return response.content
@@ -114,6 +116,8 @@ class Router:
         system_prompt = template.render(
             session_grade=session.get("grade"),
             session_subject=session.get("subject"),
+            language=session.get("language"),
+            language_name=session.get("language_name"),
         )
         response = await self.client.chat_with_tools(system_prompt, [{"role": "user", "content": message}], tools=[])
         return response.content
