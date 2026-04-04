@@ -9,7 +9,7 @@ from src.transformers_client import TransformersClient
 
 curriculum = CurriculumStore()
 client = TransformersClient(os.getenv("HF_MODEL", "google/gemma-4-E2B-it"))
-router = Router(curriculum, client=client)
+router = Router(client, curriculum)
 
 
 async def chat(message, history, grade, subject, language):
