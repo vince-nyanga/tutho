@@ -6,7 +6,7 @@ from logging import getLogger
 
 logger = getLogger(__name__)
 
-DB_PATH = "/data/thuto.db"
+DB_PATH = "thuto.db"
 
 LANGUAGE_NAMES = {
     "en": "English",
@@ -22,7 +22,6 @@ def hash_phone(phone: str) -> str:
     return hashlib.sha256(phone.encode()).hexdigest()
 
 def init_db():
-    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
     conn.executescript("""
         CREATE TABLE IF NOT EXISTS sessions (
