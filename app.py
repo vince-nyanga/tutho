@@ -119,10 +119,11 @@ demo = gr.ChatInterface(
     title="Thuto AI",
     description="AI tutor for South African CAPS curriculum",
     type="messages",
+    analytics_enabled=False,
 )
 demo.queue()
 
-app = WebhooksServer(ui=demo, launch_kwargs={"ssr_mode": False})
+app = WebhooksServer(ui=demo)
 
 
 @app.add_webhook("/whatsapp")
@@ -141,4 +142,4 @@ async def whatsapp_webhook(request: Request, background_tasks: BackgroundTasks):
 
 
 if __name__ == "__main__":
-    app.launch()
+    app.launch(ssr_mode=False)
