@@ -10,11 +10,18 @@ client = TransformersClient(os.getenv("HF_MODEL", "google/gemma-4-E2B-it"))
 router = Router(client, curriculum)
 
 
+LANGUAGE_NAMES = {
+    "en": "English",
+    "zu": "isiZulu",
+    "af": "Afrikaans"
+}
+
 async def chat(message, history, grade, subject, language):
     session = {
         "grade": int(grade),
         "subject": subject,
         "language": language,
+        "language_name": LANGUAGE_NAMES.get(language, "English"),
     }
     response = await router.handle_message(message, session, history=history)
     return response
