@@ -1,4 +1,5 @@
 streamlit
+gradio
 jinja2
 openai
 transformers
