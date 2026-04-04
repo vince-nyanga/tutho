@@ -75,6 +75,10 @@ class TransformersClient(ModelClient):
         full_messages = [{"role": "system", "content": system_prompt}] + messages
         output = _run_inference(self.model_name, full_messages, tools=tools, max_new_tokens=2048)
         content = output[0]["generated_text"]
+
+        logger.info(f"Raw output type: {type(content)}")
+        logger.info(f"Raw output: {str(content)[:500]}")
+
         if isinstance(content, str):
             content = content.strip().replace("<turn|>", "").strip()
         return _TransformersMessage(content)
