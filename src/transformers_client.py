@@ -3,7 +3,7 @@ from logging import getLogger
 
 logger = getLogger(__name__)
 
-from base_client import ModelClient
+from src.base_client import ModelClient
 
 class TransformersClient(ModelClient):
     def __init__(self, model_name: str = "google/gemma-4-E2B-it"):
