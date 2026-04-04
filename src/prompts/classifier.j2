@@ -1,10 +1,10 @@
 Classify the student's message. Return ONLY valid JSON, no other text.
 
 {
-  "intent": one of ["learn", "practice", "exam_prep", "progress", "greeting", "off_topic"],
+  "intent": one of ["learn", "practice", "exam_prep", "progress", "greeting", "off_topic", "follow_up"],
   "subject": subject name or null,
   "grade": integer or null,
-  "topic": topic description or null
+  "topic": topic name from the available topics list or null
 }
 
 Intent definitions:
@@ -21,7 +21,16 @@ Available curriculum:
 - Grade {{ grade }}: {{ subjects | join(", ") }}
 {% endfor %}
 
-Only use grade and subject combinations from this list. If the student mentions a subject or grade not available, set it to null.
+{% if available_topics %}
+Available topics for Grade {{ session_grade }} {{ session_subject }}:
+{% for t in available_topics %}
+- {{ t.name }}
+{% endfor %}
+
+IMPORTANT: The "topic" field MUST be one of the topic names listed above, or null if the student's request does not match any topic. Do NOT invent topic names. Pick the closest matching topic from the list.
+{% endif %}
+
+Only use grade and subject combinations from the curriculum list. If the student mentions a subject or grade not available, set it to null.
 
 {% if session_grade %}
 Current session: Grade {{ session_grade }}, {{ session_subject }}
@@ -31,13 +40,11 @@ Currently studying: {{ current_topic }}
 {% endif %}
 
 Examples:
-- "Help me understand quadratic equations" → {"intent": "learn", "subject": "Mathematics", "grade": null, "topic": "quadratic equations"}
-- "Ngicela ungichazele nge-arithmetic sequence" → {"intent": "learn", "subject": "Mathematics", "grade": null, "topic": "arithmetic sequences"}
-- "Give me a question on sequences" → {"intent": "practice", "subject": "Mathematics", "grade": null, "topic": "sequences"}
-- "Test me on calculus" → {"intent": "practice", "subject": "Mathematics", "grade": null, "topic": "calculus"}
-- "What tips for paper 1?" → {"intent": "exam_prep", "subject": "Mathematics", "grade": null, "topic": null}
-- "How many marks is sequences worth?" → {"intent": "exam_prep", "subject": "Mathematics", "grade": null, "topic": "sequences"}
-- "What should I study next?" → {"intent": "progress", "subject": null, "grade": null, "topic": null}
-- "Hi" → {"intent": "greeting", "subject": null, "grade": null, "topic": null}
-- "Who won the PSL?" → {"intent": "off_topic", "subject": null, "grade": null, "topic": null}
-- "a = 5 and d = 3 so T20 = 5 + 19(3) = 62" → {"intent": "follow_up", "subject": null, "grade": null, "topic": null}
+- "Help me understand quadratic equations" -> {"intent": "learn", "subject": "Mathematics", "grade": null, "topic": "closest matching topic name from list above"}
+- "Give me a question on sequences" -> {"intent": "practice", "subject": "Mathematics", "grade": null, "topic": "closest matching topic name from list above"}
+- "Test me on calculus" -> {"intent": "practice", "subject": "Mathematics", "grade": null, "topic": "closest matching topic name from list above"}
+- "What tips for paper 1?" -> {"intent": "exam_prep", "subject": "Mathematics", "grade": null, "topic": null}
+- "What should I study next?" -> {"intent": "progress", "subject": null, "grade": null, "topic": null}
+- "Hi" -> {"intent": "greeting", "subject": null, "grade": null, "topic": null}
+- "Who won the PSL?" -> {"intent": "off_topic", "subject": null, "grade": null, "topic": null}
+- "a = 5 and d = 3 so T20 = 5 + 19(3) = 62" -> {"intent": "follow_up", "subject": null, "grade": null, "topic": null}

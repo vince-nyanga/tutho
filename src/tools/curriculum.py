@@ -101,6 +101,18 @@ class CurriculumStore:
                 mapping[grade].append(subject)
         return mapping
 
+    def get_topic_list(self, grade: int, subject: str) -> list[dict]:
+        key = (grade, subject)
+        node_codes = self._grade_subject_nodes.get(key, [])
+        topics = []
+        for code in node_codes:
+            node = self._nodes[code]
+            topics.append({
+                "code": code,
+                "name": node["name"],
+            })
+        return topics
+
     def _node_to_result(self, node: dict) -> TopicResult:
         return TopicResult(
             code=node["code"],

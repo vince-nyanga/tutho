@@ -46,12 +46,17 @@ class Router:
                 return await self._handle_greeting(message, classification, session)
 
     async def _classify(self, message: str, session: dict, history: list[dict] = None) -> dict:
+        grade = session.get("grade", 12)
+        subject = session.get("subject", "Mathematics")
+        topic_list = self.curriculum.get_topic_list(grade, subject)
+
         template = self.templates.get_template("classifier.j2")
         prompt = template.render(
-            session_grade=session.get("grade"),
-            session_subject=session.get("subject"),
+            session_grade=grade,
+            session_subject=subject,
             current_topic=session.get("topic"),
             available_curriculum=self.curriculum.get_available_curriculum(),
+            available_topics=topic_list,
         )
 
         return await self.client.classify(prompt, message, history)
