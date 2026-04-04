@@ -1,6 +1,7 @@
 import json
+import os
 from jinja2 import Environment, FileSystemLoader
-from src.ollama_client import OllamaClient
+from src.base_client import ModelClient
 from src.tools.curriculum import CurriculumStore
 from src.tools.definitions import create_learning_registry
 from logging import getLogger
@@ -8,7 +9,7 @@ from logging import getLogger
 logger = getLogger(__name__)
 
 class Router:
-    def __init__(self, client: OllamaClient, curriculum: CurriculumStore):
+    def __init__(self, client: ModelClient, curriculum: CurriculumStore):
         self.client = client
         self.curriculum = curriculum
         self.templates = Environment(loader=FileSystemLoader("src/prompts"))
@@ -148,3 +149,4 @@ class Router:
             return await self._execute_tool_loop(follow_up_response, system_prompt, messages, tools)
 
         return follow_up_response.content
+

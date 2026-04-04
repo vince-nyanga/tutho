@@ -1,14 +1,24 @@
-import streamlit as st
 import asyncio
-from src.ollama_client import OllamaClient
+import os
+import streamlit as st
+from src.base_client import ModelClient
 from src.router import Router
 from src.tools.curriculum import CurriculumStore
 
 st.set_page_config(page_title="Thuto AI", page_icon="📚")
 st.title("Tutho AI")
+
+def get_model_client() -> ModelClient:
+    backend = os.getenv("MODEL_BACKEND", "ollama")
+    if backend == "transformers":
+        from src.transformers_client import TransformersClient
+        return TransformersClient(os.getenv("HF_MODEL", "google/gemma-4-E2B-it"))
+    from src.ollama_client import OllamaClient
+    return OllamaClient(os.getenv("OLLAMA_MODEL", "gemma4:e2b"))
+
 @st.cache_resource
 def init_router():
-    client = OllamaClient()
+    client = get_model_client()
     curriculum = CurriculumStore()
     return Router(client, curriculum)
 
