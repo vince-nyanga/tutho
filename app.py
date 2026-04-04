@@ -1,10 +1,9 @@
 import gradio as gr
 import os
 from logging import getLogger
-from fastapi import Form, Request, BackgroundTasks
+from fastapi import Form, Request
 from fastapi.responses import Response
 from twilio.twiml.messaging_response import MessagingResponse
-from twilio.rest import Client as TwilioClient
 from huggingface_hub import WebhooksServer
 from src.tools.curriculum import CurriculumStore
 from src.router import Router
@@ -29,32 +28,6 @@ async def chat(message, history, grade, subject, language):
     }
     response = await router.handle_message(message, session, history=history)
     return response
-
-
-async def process_and_reply(phone: str, message: str):
-    session = get_session(phone)
-    logger.info(f"Processing message: {message}")
-    try:
-        response_text = await router.handle_message(message, session, history=session["history"])
-        logger.info(f"Response: {response_text[:100]}...")
-    except Exception as e:
-        logger.error(f"Error: {e}", exc_info=True)
-        response_text = "Sorry, something went wrong. Please try again."
-
-    session["history"].append({"role": "user", "content": message})
-    session["history"].append({"role": "assistant", "content": response_text})
-    save_session(session)
-
-    twilio_client = TwilioClient(
-        os.getenv("TWILIO_ACCOUNT_SID"),
-        os.getenv("TWILIO_AUTH_TOKEN")
-    )
-    twilio_client.messages.create(
-        from_=os.getenv("TWILIO_WHATSAPP_NUMBER", "whatsapp:+14155238886"),
-        to=phone,
-        body=response_text
-    )
-    logger.info("Reply sent via Twilio API")
 
 
 demo = gr.ChatInterface(
@@ -84,7 +57,7 @@ app = WebhooksServer(ui=demo)
 
 
 @app.add_webhook("/whatsapp")
-async def whatsapp_webhook(request: Request, background_tasks: BackgroundTasks):
+async def whatsapp_webhook(request: Request):
     form = await request.form()
     phone = form.get("From", "")
     message = form.get("Body", "").strip()
@@ -99,7 +72,17 @@ async def whatsapp_webhook(request: Request, background_tasks: BackgroundTasks):
         twiml.message("Done! ✓")
         return Response(content=str(twiml), media_type="application/xml")
 
-    background_tasks.add_task(process_and_reply, phone, message)
+    try:
+        response_text = await router.handle_message(message, session, history=session["history"])
+        logger.info(f"Response: {response_text[:100]}...")
+    except Exception as e:
+        logger.error(f"Error: {e}", exc_info=True)
+        response_text = "Sorry, something went wrong. Please try again."
+
+    session["history"].append({"role": "user", "content": message})
+    session["history"].append({"role": "assistant", "content": response_text})
+    save_session(session)
+    twiml.message(response_text)
     return Response(content=str(twiml), media_type="application/xml")
 
 
