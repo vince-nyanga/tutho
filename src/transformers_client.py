@@ -74,7 +74,7 @@ def _extract_tool_calls(text):
 
     results = []
     for name, args in re.findall(
-        r"<\|tool_call>call:(\w+)\{(.*?)\}<tool_call\|>", text, re.DOTALL
+        r"(?:<\|tool_call>)?call:(\w+)\{(.*?)\}<tool_call\|>", text, re.DOTALL
     ):
         # Try parsing as JSON first (handles {"key": "value"} format)
         try:
@@ -136,19 +136,26 @@ class TransformersClient(ModelClient):
 
         if tool_calls:
             logger.info(f"Parsed tool calls: {tool_calls}")
-            return _TransformersMessage(tool_calls)
+            # Strip tool call tags from remaining text to get content
+            cleaned = re.sub(r'(?:<\|tool_call>)?call:\w+\{.*?\}<tool_call\|>', '', raw_text, flags=re.DOTALL).strip()
+            for token in ["<end_of_turn>", "<eos>", "<turn|>", "<|tool_response>"]:
+                cleaned = cleaned.replace(token, "")
+            cleaned = re.sub(r'<\|.*?\|>', '', cleaned).strip()
+            return _TransformersMessage(tool_calls, cleaned if cleaned else None)
 
         for token in ["<end_of_turn>", "<eos>", "<turn|>", "<|tool_response>"]:
             raw_text = raw_text.replace(token, "")
-        return _TransformersMessage(raw_text.strip())
+        raw_text = re.sub(r'<\|.*?\|>', '', raw_text).strip()
+        return _TransformersMessage(raw_text)
 
 
 class _TransformersMessage:
-    def __init__(self, content):
+    def __init__(self, content, text=None):
         self.content = None
         self.tool_calls = None
         if isinstance(content, list):
             self.tool_calls = [_TransformersToolCall(tc) for tc in content]
+            self.content = text
         else:
             self.content = content
 
