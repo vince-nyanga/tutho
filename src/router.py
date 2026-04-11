@@ -1,12 +1,20 @@
 import json
 import re
 import os
+from enum import Enum
 from jinja2 import Environment, FileSystemLoader
 from src.base_client import ModelClient
 from src.tools.curriculum import CurriculumStore
 from src.tools.definitions import create_learning_registry, ToolRegistry
 from src.mastery import get_mastery
 from logging import getLogger
+
+
+class Intent(str, Enum):
+    LEARN = "learn"
+    ANSWER = "answer"
+    GREETING = "greeting"
+    OFF_TOPIC = "off_topic"
 
 logger = getLogger(__name__)
 
@@ -28,21 +36,22 @@ class Router:
         if not classification.get("subject") and session.get("subject"):
             classification["subject"] = session["subject"]
 
-        intent = classification.get("intent", "greeting")
-        logger.info(f"Routing intent: {intent}")
+        try:
+            intent = Intent(classification.get("intent", "greeting"))
+        except ValueError:
+            logger.warning(f"Unknown intent '{classification.get('intent')}', falling back to learn")
+            intent = Intent.LEARN
+        logger.info(f"Routing intent: {intent.value}")
 
         match intent:
-            case "learn":
+            case Intent.LEARN:
                 return await self._handle_learn(message, classification, session, history)
-            case "answer":
+            case Intent.ANSWER:
                 return await self._handle_answer(message, classification, session, history)
-            case "greeting":
+            case Intent.GREETING:
                 return await self._handle_greeting(message, classification, session)
-            case "off_topic":
+            case Intent.OFF_TOPIC:
                 return await self._handle_off_topic(message, classification, session)
-            case _:
-                logger.warning(f"Unknown intent '{intent}', falling back to learn")
-                return await self._handle_learn(message, classification, session, history)
 
     async def _classify(self, message: str, session: dict, history: list[dict] = None) -> dict:
         grade = session.get("grade", 12)
