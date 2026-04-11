@@ -1,10 +1,10 @@
 import asyncio
-from src.ollama_client import OllamaClient
+from src.local_client import LocalClient
 from src.tools.curriculum import CurriculumStore
 from src.router import Router
 
 async def main():
-    client = OllamaClient()
+    client = LocalClient()
     curriculum = CurriculumStore()
     router = Router(client, curriculum)
 

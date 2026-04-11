@@ -98,31 +98,7 @@ class TransformersClient(ModelClient):
     def __init__(self, model_name: str = "google/gemma-4-E4B-it"):
         self.model_name = model_name
 
-    async def classify(self, system_prompt, user_message, history=None) -> dict:
-        messages = [{"role": "system", "content": system_prompt}]
-        if history:
-            messages.extend(history)
-        messages.append({"role": "user", "content": user_message})
-
-        raw_text = _run_inference(self.model_name, messages, max_new_tokens=256)
-
-        # Clean special tokens
-        for token in ["<end_of_turn>", "<eos>", "<turn|>", "<|tool_response>"]:
-            raw_text = raw_text.replace(token, "")
-        raw_text = re.sub(r'<\|.*?\|>', '', raw_text).strip()
-
-        # Extract JSON
-        start = raw_text.find('{')
-        end = raw_text.rfind('}') + 1
-        if start >= 0 and end > start:
-            try:
-                return json.loads(raw_text[start:end])
-            except json.JSONDecodeError:
-                logger.warning(f"Failed to parse JSON: {raw_text[start:end]}")
-
-        return {"intent": "greeting", "subject": None, "grade": None, "topic": None}
-
-    async def chat_with_tools(self, system_prompt, messages, tools, tool_choice=None) -> object:
+    async def chat(self, system_prompt, messages, tools, tool_choice=None) -> object:
         full_messages = [{"role": "system", "content": system_prompt}] + messages
         raw_text = _run_inference(
             self.model_name, full_messages,

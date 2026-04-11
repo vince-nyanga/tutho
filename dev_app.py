@@ -18,8 +18,8 @@ def get_model_client() -> ModelClient:
     if backend == "transformers":
         from src.transformers_client import TransformersClient
         return TransformersClient(os.getenv("HF_MODEL", "google/gemma-4-E4B-it"))
-    from src.ollama_client import OllamaClient
-    return OllamaClient(os.getenv("OLLAMA_MODEL", "gemma4:e4b"))
+    from src.local_client import LocalClient
+    return LocalClient(os.getenv("OLLAMA_MODEL", "gemma4:e4b"))
 
 
 @st.cache_resource

@@ -3,12 +3,12 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 
-from src.ollama_client import OllamaClient
+from src.local_client import LocalClient
 from src.router import Router
 from src.tools.curriculum import CurriculumStore
 
 async def main():
-    client = OllamaClient()
+    client = LocalClient()
     curriculum = CurriculumStore()
     router = Router(client, curriculum)
 

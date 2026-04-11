@@ -64,7 +64,7 @@ class Router:
         tools = registry.get_tools(names=["get_topics", "get_topic"])
 
         messages = [{"role": "user", "content": message}]
-        response = await self.client.chat_with_tools(prompt, messages, tools)
+        response = await self.client.chat(prompt, messages, tools)
 
         logger.info(f"Classifier tool calls: {[tc.function.name for tc in response.tool_calls] if response.tool_calls else 'None'}")
 
@@ -171,7 +171,7 @@ class Router:
 
         messages = list(history) if history else [{"role": "user", "content": message}]
 
-        response = await self.client.chat_with_tools(system_prompt, messages, tools)
+        response = await self.client.chat(system_prompt, messages, tools)
 
         logger.info(f"Tool calls: {[tc.function.name for tc in response.tool_calls] if response.tool_calls else 'None'}")
 
@@ -204,7 +204,7 @@ class Router:
 
         logger.info(f"Answer tools provided: {[t['function']['name'] for t in tools]}")
 
-        response = await self.client.chat_with_tools(system_prompt, messages, tools)
+        response = await self.client.chat(system_prompt, messages, tools)
 
         logger.info(f"Answer tool calls: {[tc.function.name for tc in response.tool_calls] if response.tool_calls else 'None'}")
 
@@ -223,7 +223,7 @@ class Router:
             language=session.get("language"),
             language_name=session.get("language_name"),
         )
-        response = await self.client.chat_with_tools(system_prompt, [{"role": "user", "content": message}], tools=[])
+        response = await self.client.chat(system_prompt, [{"role": "user", "content": message}], tools=[])
         return response.content
 
     async def _handle_off_topic(self, message: str, classification: dict, session: dict) -> str:
@@ -234,7 +234,7 @@ class Router:
             language=session.get("language"),
             language_name=session.get("language_name"),
         )
-        response = await self.client.chat_with_tools(system_prompt, [{"role": "user", "content": message}], tools=[])
+        response = await self.client.chat(system_prompt, [{"role": "user", "content": message}], tools=[])
         return response.content
 
     async def _execute_tool_loop(self, response, system_prompt: str, messages: list[dict], tools: list[dict],
@@ -276,7 +276,7 @@ class Router:
         })
         messages.extend(tool_responses_data)
 
-        follow_up_response = await self.client.chat_with_tools(system_prompt, messages, tools)
+        follow_up_response = await self.client.chat(system_prompt, messages, tools)
 
         logger.info(
             f"Follow-up tool calls: {[tc.function.name for tc in follow_up_response.tool_calls] if follow_up_response.tool_calls else 'None'}")
