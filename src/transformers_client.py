@@ -72,15 +72,26 @@ def _extract_tool_calls(text):
             except:
                 return {'true': True, 'false': False}.get(v.lower(), v.strip("'\""))
 
-    return [{
-        "name": name,
-        "arguments": {
+    results = []
+    for name, args in re.findall(
+        r"<\|tool_call>call:(\w+)\{(.*?)\}<tool_call\|>", text, re.DOTALL
+    ):
+        # Try parsing as JSON first (handles {"key": "value"} format)
+        try:
+            parsed = json.loads("{" + args + "}")
+            results.append({"name": name, "arguments": parsed})
+            continue
+        except (json.JSONDecodeError, ValueError):
+            pass
+
+        # Fall back to Gemma-specific format (key:value without quotes)
+        arguments = {
             k: cast((v1 or v2).strip())
             for k, v1, v2 in re.findall(r'(\w+):(?:<\|"\|>(.*?)<\|"\|>|([^,}]*))', args)
         }
-    } for name, args in re.findall(
-        r"<\|tool_call>call:(\w+)\{(.*?)\}<tool_call\|>", text, re.DOTALL
-    )]
+        results.append({"name": name, "arguments": arguments})
+
+    return results
 
 
 class TransformersClient(ModelClient):

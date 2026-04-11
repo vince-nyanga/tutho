@@ -244,7 +244,11 @@ class Router:
             logger.info(f"Executing tool: {tool_call.function.name} with args: {tool_call.function.arguments}")
             args = json.loads(tool_call.function.arguments) if isinstance(tool_call.function.arguments,
                                                                           str) else tool_call.function.arguments
-            result = registry.execute(tool_call.function.name, tool_call.function.arguments)
+            try:
+                result = registry.execute(tool_call.function.name, tool_call.function.arguments)
+            except Exception as e:
+                logger.error(f"Tool execution failed: {e}")
+                result = {"error": str(e)}
             logger.info(f"Tool result: {json.dumps(result, default=str)[:200]}")
 
             tool_calls_data.append({
