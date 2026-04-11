@@ -52,7 +52,8 @@ def init_db():
             language_name TEXT DEFAULT 'English',
             current_topic TEXT,
             current_grade INTEGER,
-            current_subject TEXT
+            current_subject TEXT,
+            current_kc TEXT
         );
 
         CREATE TABLE IF NOT EXISTS mastery (
@@ -66,14 +67,6 @@ def init_db():
     """)
     conn.commit()
 
-    # Add columns for existing databases that don't have them yet
-    for col, col_type in [("current_topic", "TEXT"), ("current_grade", "INTEGER"), ("current_subject", "TEXT")]:
-        try:
-            conn.execute(f"ALTER TABLE sessions ADD COLUMN {col} {col_type}")
-            conn.commit()
-        except Exception:
-            pass
-
     conn.close()
     logger.info(f"Database initialized (turso={bool(TURSO_DATABASE_URL)})")
 
@@ -82,7 +75,7 @@ def get_session(phone: str) -> dict:
     phone_hash = hash_phone(phone)
     conn = get_connection()
     row = conn.execute(
-        "SELECT phone_hash, history, grade, subject, language, language_name, current_topic, current_grade, current_subject FROM sessions WHERE phone_hash = ?",
+        "SELECT phone_hash, history, grade, subject, language, language_name, current_topic, current_grade, current_subject, current_kc FROM sessions WHERE phone_hash = ?",
         (phone_hash,)
     ).fetchone()
     conn.close()
@@ -97,6 +90,7 @@ def get_session(phone: str) -> dict:
             "current_topic": row[6],
             "current_grade": row[7],
             "current_subject": row[8],
+            "current_kc": row[9],
         }
     return {
         "phone_hash": phone_hash,
@@ -108,14 +102,15 @@ def get_session(phone: str) -> dict:
         "current_topic": None,
         "current_grade": None,
         "current_subject": None,
+        "current_kc": None,
     }
 
 
 def save_session(session: dict):
     conn = get_connection()
     conn.execute("""
-        INSERT INTO sessions (phone_hash, history, grade, subject, language, language_name, current_topic, current_grade, current_subject)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO sessions (phone_hash, history, grade, subject, language, language_name, current_topic, current_grade, current_subject, current_kc)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(phone_hash) DO UPDATE SET
             history=excluded.history,
             grade=excluded.grade,
@@ -124,7 +119,8 @@ def save_session(session: dict):
             language_name=excluded.language_name,
             current_topic=excluded.current_topic,
             current_grade=excluded.current_grade,
-            current_subject=excluded.current_subject
+            current_subject=excluded.current_subject,
+            current_kc=excluded.current_kc
     """, (
         session["phone_hash"],
         json.dumps(session["history"][-20:]),
@@ -135,6 +131,7 @@ def save_session(session: dict):
         session.get("current_topic"),
         session.get("current_grade"),
         session.get("current_subject"),
+        session.get("current_kc"),
     ))
     conn.commit()
     conn.close()
@@ -166,6 +163,7 @@ def parse_command(message: str, session: dict) -> bool:
         session["current_topic"] = None
         session["current_grade"] = None
         session["current_subject"] = None
+        session["current_kc"] = None
         return True
 
     return False

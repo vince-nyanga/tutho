@@ -91,7 +91,12 @@ class Router:
         end = cleaned.rfind('}') + 1
         if start >= 0 and end > start:
             try:
-                return json.loads(cleaned[start:end])
+                result = json.loads(cleaned[start:end])
+                # Normalize string "None"/"null" to actual None
+                for key in result:
+                    if isinstance(result[key], str) and result[key].lower() in ("none", "null"):
+                        result[key] = None
+                return result
             except json.JSONDecodeError:
                 logger.warning(f"Failed to parse classifier JSON: {cleaned[start:end]}")
         logger.warning(f"No JSON found in classifier output: {text[:200]}")
