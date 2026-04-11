@@ -6,7 +6,7 @@ from jinja2 import Environment, FileSystemLoader
 from src.base_client import ModelClient
 from src.tools.curriculum import CurriculumStore
 from src.tools.definitions import create_learning_registry, ToolRegistry
-from src.mastery import get_mastery
+from src.db import get_mastery
 from logging import getLogger
 
 

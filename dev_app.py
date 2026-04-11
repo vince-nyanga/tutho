@@ -7,7 +7,7 @@ import streamlit as st
 from src.base_client import ModelClient
 from src.router import Router
 from src.tools.curriculum import CurriculumStore
-from src.server import init_db
+from src.db import init_db
 
 st.set_page_config(page_title="Thuto AI", page_icon="📚")
 st.title("Thuto AI")

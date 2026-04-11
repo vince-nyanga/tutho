@@ -4,7 +4,7 @@ from typing import Callable
 from pydantic import BaseModel, Field
 
 from src.tools.curriculum import CurriculumStore
-from src.mastery import update_mastery, get_all_mastery
+from src.db import update_mastery
 
 
 class ToolRegistry:

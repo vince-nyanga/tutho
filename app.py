@@ -14,7 +14,8 @@ from huggingface_hub import WebhooksServer
 from src.tools.curriculum import CurriculumStore
 from src.router import Router
 from src.transformers_client import TransformersClient
-from src.server import init_db, get_session, save_session, parse_command, LANGUAGE_NAMES, hash_phone
+from src.db import init_db, get_session, save_session, hash_phone
+from src.server import parse_command, LANGUAGE_NAMES
 
 logger = getLogger(__name__)
 
