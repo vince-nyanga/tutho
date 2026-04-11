@@ -175,6 +175,10 @@ class CurriculumStore:
             elif any(word in part or part in word for part in name_lower.split()):
                 score += 2
 
+        # Prefer nodes that have knowledge components (topics over units)
+        if node.get("knowledge_components"):
+            score += 5
+
         # KC description matches (lower weight)
         for kc in node.get("knowledge_components", []):
             desc_lower = kc.get("description", "").lower()

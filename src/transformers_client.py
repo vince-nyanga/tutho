@@ -111,7 +111,7 @@ class TransformersClient(ModelClient):
 
         return {"intent": "greeting", "subject": None, "grade": None, "topic": None}
 
-    async def chat_with_tools(self, system_prompt, messages, tools) -> object:
+    async def chat_with_tools(self, system_prompt, messages, tools, tool_choice=None) -> object:
         full_messages = [{"role": "system", "content": system_prompt}] + messages
         raw_text = _run_inference(
             self.model_name, full_messages,

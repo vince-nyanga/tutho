@@ -58,7 +58,7 @@ if "user_session" not in st.session_state:
         "subject": subject,
         "language": language[1],
         "language_name": language[0],
-        "topic": None,
+        "current_topic": None,
         "phone_hash": "local_dev_user",
     }
 

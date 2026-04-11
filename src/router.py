@@ -28,53 +28,60 @@ class Router:
         if not classification.get("subject") and session.get("subject"):
             classification["subject"] = session["subject"]
 
-        match classification["intent"]:
+        intent = classification.get("intent", "greeting")
+        logger.info(f"Routing intent: {intent}")
+
+        match intent:
             case "learn":
                 return await self._handle_learn(message, classification, session, history)
-            case "practice":
-                return await self._handle_learn(message, classification, session, history)
-            case "follow_up":
-                return await self._handle_learn(message, classification, session, history)
-            case "exam_prep":
-                return await self._handle_exam_prep(message, classification, session)
-            case "progress":
-                return await self._handle_progress(message, classification, session)
+            case "answer":
+                return await self._handle_answer(message, classification, session, history)
             case "greeting":
                 return await self._handle_greeting(message, classification, session)
             case "off_topic":
                 return await self._handle_off_topic(message, classification, session)
             case _:
-                return await self._handle_greeting(message, classification, session)
+                logger.warning(f"Unknown intent '{intent}', falling back to learn")
+                return await self._handle_learn(message, classification, session, history)
 
     async def _classify(self, message: str, session: dict, history: list[dict] = None) -> dict:
         grade = session.get("grade", 12)
         subject = session.get("subject", "Mathematics")
 
+        current_topic = session.get("current_topic")
+        current_kc = session.get("current_kc")
+        logger.info(f"Classifier context - topic: {current_topic}, kc: {current_kc}")
+
         template = self.templates.get_template("classifier.j2")
         prompt = template.render(
             session_grade=grade,
             session_subject=subject,
-            current_topic=session.get("current_topic"),
-            available_curriculum=self.curriculum.get_available_curriculum(),
+            current_topic=current_topic,
+            current_kc=current_kc,
         )
 
         registry = create_learning_registry(self.curriculum, session.get("phone_hash"))
-        all_tools = registry.get_tools()
-        classifier_tools = [t for t in all_tools if t["function"]["name"] == "get_topics"]
-
-        logger.info(f"Classifier tools: {[t['function']['name'] for t in classifier_tools]}")
+        tools = registry.get_tools(names=["get_topics", "get_topic"])
 
         messages = [{"role": "user", "content": message}]
-        messages.extend(history[-4:] if history else [])
-        response = await self.client.chat_with_tools(prompt, messages, classifier_tools)
+        response = await self.client.chat_with_tools(prompt, messages, tools)
 
         logger.info(f"Classifier tool calls: {[tc.function.name for tc in response.tool_calls] if response.tool_calls else 'None'}")
 
         if response.tool_calls:
-            result = await self._execute_tool_loop(response, prompt, messages, classifier_tools, registry)
-            return self._extract_json(result)
+            result = await self._execute_tool_loop(response, prompt, messages, tools, registry)
+            classification = self._extract_json(result)
+        else:
+            logger.info(f"Classifier raw output: {response.content[:200] if response.content else 'None'}")
+            classification = self._extract_json(response.content)
 
-        return self._extract_json(response.content)
+        # Update session from classification
+        if classification.get("kc_code"):
+            session["current_kc"] = classification["kc_code"]
+        if classification.get("topic"):
+            session["current_topic"] = classification["topic"]
+
+        return classification
 
     def _extract_json(self, text: str) -> dict:
         if not text:
@@ -117,6 +124,8 @@ class Router:
             session["current_topic"] = topic_name
             session["current_grade"] = grade
             session["current_subject"] = subject
+            if topic.knowledge_components:
+                session["current_kc"] = topic.knowledge_components[0]["code"]
 
         phone_hash = session.get("phone_hash")
 
@@ -151,11 +160,11 @@ class Router:
         logger.info(f"System prompt (first 500 chars): {system_prompt[:500]}")
 
         learning_registry = create_learning_registry(self.curriculum, phone_hash)
-        tools = learning_registry.get_tools()
+        tools = learning_registry.get_tools(names=["get_topics", "get_topic"])
 
         logger.info(f"Tools provided: {[t['function']['name'] for t in tools]}")
 
-        messages = [*history, {"role": "user", "content": message}]
+        messages = list(history) if history else [{"role": "user", "content": message}]
 
         response = await self.client.chat_with_tools(system_prompt, messages, tools)
 
@@ -166,14 +175,40 @@ class Router:
 
         return response.content
 
-    async def _handle_practice(self, message: str, classification: dict, session: dict) -> str:
-        pass
+    async def _handle_answer(self, message: str, classification: dict, session: dict, history: list[dict] = None) -> str:
+        grade = classification.get("grade") or session.get("current_grade", 12)
+        subject = classification.get("subject") or session.get("current_subject", "Mathematics")
+        kc_code = classification.get("kc_code") or session.get("current_kc")
+        phone_hash = session.get("phone_hash")
 
-    async def _handle_exam_prep(self, message: str, classification: dict, session: dict) -> str:
-        pass
+        logger.info(f"Answer handler - kc_code: {kc_code}, grade: {grade}, subject: {subject}")
 
-    async def _handle_progress(self, message: str, classification: dict, session: dict) -> str:
-        pass
+        template = self.templates.get_template("answer.j2")
+        system_prompt = template.render(
+            grade=grade,
+            subject=subject,
+            language=session.get("language"),
+            language_name=session.get("language_name"),
+            kc_code=kc_code,
+        )
+
+        learning_registry = create_learning_registry(self.curriculum, phone_hash)
+        tools = learning_registry.get_tools(names=["assess_response"])
+
+        messages = list(history[-4:]) if history else [{"role": "user", "content": message}]
+
+        logger.info(f"Answer tools provided: {[t['function']['name'] for t in tools]}")
+
+        response = await self.client.chat_with_tools(system_prompt, messages, tools)
+
+        logger.info(f"Answer tool calls: {[tc.function.name for tc in response.tool_calls] if response.tool_calls else 'None'}")
+
+        if response.tool_calls:
+            return await self._execute_tool_loop(response, system_prompt, messages, tools, learning_registry)
+
+        logger.warning("assess_response was NOT called by the model")
+        return response.content
+
 
     async def _handle_greeting(self, message: str, classification: dict, session: dict) -> str:
         template = self.templates.get_template("greeting.j2")
@@ -213,21 +248,24 @@ class Router:
             logger.info(f"Tool result: {json.dumps(result, default=str)[:200]}")
 
             tool_calls_data.append({
+                "id": tool_call.id or f"call_{tool_call.function.name}",
+                "type": "function",
                 "function": {
                     "name": tool_call.function.name,
-                    "arguments": args
+                    "arguments": tool_call.function.arguments if isinstance(tool_call.function.arguments, str) else json.dumps(args)
                 }
             })
             tool_responses_data.append({
-                "name": tool_call.function.name,
-                "response": result
+                "role": "tool",
+                "tool_call_id": tool_call.id or f"call_{tool_call.function.name}",
+                "content": json.dumps(result, default=str)
             })
 
         messages.append({
             "role": "assistant",
             "tool_calls": tool_calls_data,
-            "tool_responses": tool_responses_data,
         })
+        messages.extend(tool_responses_data)
 
         follow_up_response = await self.client.chat_with_tools(system_prompt, messages, tools)
 

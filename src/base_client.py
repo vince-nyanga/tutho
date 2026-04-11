@@ -13,5 +13,6 @@ class ModelClient(Protocol):
             self,
             system_prompt: str,
             messages: list[dict],
-            tools: list[dict]) -> object:
+            tools: list[dict],
+            tool_choice: str | dict | None = None) -> object:
         ...

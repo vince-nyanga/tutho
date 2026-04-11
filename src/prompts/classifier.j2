@@ -1,29 +1,23 @@
-USE THE TOOLS AVAILABLE TO YOU WHEN THEY ARE NECESSARY
-
 Classify the student's message. Return ONLY valid JSON, no other text.
 
 {
-  "intent": one of ["learn", "practice", "exam_prep", "progress", "greeting", "off_topic"],
+  "intent": one of ["learn", "answer", "greeting", "off_topic"],
   "subject": subject name or null,
   "grade": integer or null,
-  "topic": topic description or null
+  "topic": topic code or null,
+  "kc_code": knowledge component code or null
 }
 
 Intent definitions:
-- "learn": student wants an explanation, help understanding a concept, or asks "how do I" / "what is"
-- "practice": student wants a question, exercise, or says "test me" / "give me a problem"
-- "exam_prep": student asks about exam tips, mark allocation, paper 1 vs paper 2, or past papers
-- "progress": student asks what to study next, what they've covered, or where they are
+- "learn": student wants to learn, practice, get an explanation, or is choosing a topic
+- "answer": student is answering a question the tutor asked (a number, working, a value, an attempt at a solution)
 - "greeting": hi, hello, thanks, bye
 - "off_topic": anything not related to studying
-- "follow_up": student is responding to a question you asked, giving an answer, showing working, or continuing the current conversation
 
-Available curriculum:
-{% for grade, subjects in available_curriculum.items() %}
-- Grade {{ grade }}: {{ subjects | join(", ") }}
-{% endfor %}
+KEY RULE: If the student's message looks like a short reply, a number, or working/calculations, it is almost always "answer".
 
-Only use grade and subject combinations from this list. If the student mentions a subject or grade not available, set it to null.
+TOOL USE:
+When intent is "learn", call get_topics to find the matching topic, then call get_topic to get the full topic details including knowledge component codes. Set "topic" to the topic code and "kc_code" to the first knowledge component code.
 
 {% if session_grade %}
 Current session: Grade {{ session_grade }}, {{ session_subject }}
@@ -31,15 +25,36 @@ Current session: Grade {{ session_grade }}, {{ session_subject }}
 {% if current_topic %}
 Currently studying: {{ current_topic }}
 {% endif %}
+{% if current_kc %}
+Current knowledge component: {{ current_kc }}
+When intent is "answer", set kc_code to: {{ current_kc }}
+{% endif %}
 
 Examples:
-- "Help me understand quadratic equations" → {"intent": "learn", "subject": "Mathematics", "grade": null, "topic": "quadratic equations"}
-- "Ngicela ungichazele nge-arithmetic sequence" → {"intent": "learn", "subject": "Mathematics", "grade": null, "topic": "arithmetic sequences"}
-- "Give me a question on sequences" → {"intent": "practice", "subject": "Mathematics", "grade": null, "topic": "sequences"}
-- "Test me on calculus" → {"intent": "practice", "subject": "Mathematics", "grade": null, "topic": "calculus"}
-- "What tips for paper 1?" → {"intent": "exam_prep", "subject": "Mathematics", "grade": null, "topic": null}
-- "How many marks is sequences worth?" → {"intent": "exam_prep", "subject": "Mathematics", "grade": null, "topic": "sequences"}
-- "What should I study next?" → {"intent": "progress", "subject": null, "grade": null, "topic": null}
-- "Hi" → {"intent": "greeting", "subject": null, "grade": null, "topic": null}
-- "Who won the PSL?" → {"intent": "off_topic", "subject": null, "grade": null, "topic": null}
-- "a = 5 and d = 3 so T20 = 5 + 19(3) = 62" → {"intent": "follow_up", "subject": null, "grade": null, "topic": null}
+
+User: d = 3
+Output: {"intent": "answer", "subject": null, "grade": null, "topic": null, "kc_code": "{{ current_kc }}"}
+
+User: I think it's 42
+Output: {"intent": "answer", "subject": null, "grade": null, "topic": null, "kc_code": "{{ current_kc }}"}
+
+User: 62
+Output: {"intent": "answer", "subject": null, "grade": null, "topic": null, "kc_code": "{{ current_kc }}"}
+
+User: the common difference is 3
+Output: {"intent": "answer", "subject": null, "grade": null, "topic": null, "kc_code": "{{ current_kc }}"}
+
+User: yes
+Output: {"intent": "answer", "subject": null, "grade": null, "topic": null, "kc_code": "{{ current_kc }}"}
+
+User: I don't know
+Output: {"intent": "answer", "subject": null, "grade": null, "topic": null, "kc_code": "{{ current_kc }}"}
+
+User: Hi
+Output: {"intent": "greeting", "subject": null, "grade": null, "topic": null, "kc_code": null}
+
+User: Thanks
+Output: {"intent": "greeting", "subject": null, "grade": null, "topic": null, "kc_code": null}
+
+User: Who won the PSL?
+Output: {"intent": "off_topic", "subject": null, "grade": null, "topic": null, "kc_code": null}
