@@ -4,7 +4,6 @@ from logging import getLogger
 
 logger = getLogger(__name__)
 
-from src.base_client import ModelClient
 
 try:
     import spaces
@@ -94,7 +93,7 @@ def _extract_tool_calls(text):
     return results
 
 
-class TransformersClient(ModelClient):
+class TransformersClient:
     def __init__(self, model_name: str = "google/gemma-4-E4B-it"):
         self.model_name = model_name
 

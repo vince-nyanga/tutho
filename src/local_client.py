@@ -1,7 +1,5 @@
 from openai import AsyncOpenAI
-from src.base_client import ModelClient
-
-class LocalClient(ModelClient):
+class LocalClient:
     def __init__(self, model: str = "gemma4:e4b", base_url: str = "http://localhost:8080/v1"):
         self.model = model
         self.client = AsyncOpenAI(base_url=base_url, api_key="sk-no-api")

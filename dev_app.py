@@ -4,7 +4,6 @@ logging.basicConfig(level=logging.INFO)
 import asyncio
 import os
 import streamlit as st
-from src.base_client import ModelClient
 from src.router import Router
 from src.tools.curriculum import CurriculumStore
 from src.db import init_db
@@ -13,7 +12,7 @@ st.set_page_config(page_title="Thuto AI", page_icon="📚")
 st.title("Thuto AI")
 
 
-def get_model_client() -> ModelClient:
+def get_model_client():
     backend = os.getenv("MODEL_BACKEND", "ollama")
     if backend == "transformers":
         from src.transformers_client import TransformersClient

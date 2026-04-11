@@ -1,43 +1,10 @@
-import json
 from dataclasses import asdict
-from typing import Callable
 from pydantic import BaseModel, Field
 
 from src.tools.curriculum import CurriculumStore
+from src.tools.registry import ToolRegistry
 from src.db import update_mastery
 
-
-class ToolRegistry:
-    def __init__(self):
-        self._tools: dict[str, dict] = {}
-        self._handlers: dict[str, Callable] = {}
-
-    def register(self, tool_name: str, description: str, params_model: type[BaseModel], handler: Callable):
-        self._tools[tool_name] = {
-            "type": "function",
-            "function": {
-                "name": tool_name,
-                "description": description,
-                "parameters": params_model.model_json_schema(),
-            }
-        }
-        self._handlers[tool_name] = handler
-
-    def get_tools(self, names: list[str] | None = None) -> list[dict]:
-        if names is None:
-            return list(self._tools.values())
-        else:
-            return [self._tools[name] for name in names if name in self._tools]
-
-    def execute(self, tool_name: str, args_json: str):
-        handler = self._handlers[tool_name]
-        if not handler:
-            return {"error": f"Unknown tool: {tool_name}"}
-        args = json.loads(args_json)
-        return handler(**args)
-
-
-# --- Param Models ---
 
 class GetTopicsParams(BaseModel):
     grade: int = Field(..., description="Grade level (e.g. 12)")
@@ -53,10 +20,6 @@ class GetTopicParams(BaseModel):
 class AssessResponseParams(BaseModel):
     kc_code: str = Field(..., description="The knowledge component code being assessed")
     is_correct: bool = Field(..., description="Whether the student's response was correct")
-
-
-class GetProgressParams(BaseModel):
-    pass
 
 
 def create_learning_registry(curriculum: CurriculumStore, phone_hash: str = None) -> ToolRegistry:
@@ -90,22 +53,23 @@ def create_learning_registry(curriculum: CurriculumStore, phone_hash: str = None
 
     registry.register(
         tool_name="get_topics",
-        description="Look up what topics are available in the CAPS curriculum. You MUST call this before suggesting or confirming a topic so you only recommend real topics.",
+        description="Look up what topics are available in the CAPS curriculum.",
         params_model=GetTopicsParams,
         handler=handle_get_topics,
     )
 
     registry.register(
         tool_name="get_topic",
-        description="Fetch full details for a specific topic including teaching notes, misconceptions, and knowledge components. Call this when you need curriculum detail for a topic you are about to teach.",
+        description="Fetch full details for a specific topic including teaching notes, misconceptions, and knowledge components.",
         params_model=GetTopicParams,
         handler=handle_get_topic,
     )
 
     registry.register(
         tool_name="assess_response",
-        description="WHEN a student answers a question you asked, you MUST call this tool to record whether they got it right. This updates their mastery score. Do NOT judge correctness yourself without calling this tool first.",
+        description="Record whether the student's answer was correct. This updates their mastery score.",
         params_model=AssessResponseParams,
         handler=handle_assess_response,
     )
+
     return registry

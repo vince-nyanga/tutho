@@ -15,9 +15,49 @@ from src.tools.curriculum import CurriculumStore
 from src.router import Router
 from src.transformers_client import TransformersClient
 from src.db import init_db, get_session, save_session, hash_phone
-from src.commands import parse_command, LANGUAGE_NAMES
 
 logger = getLogger(__name__)
+
+LANGUAGE_NAMES = {
+    "en": "English",
+    "zu": "isiZulu",
+    "xh": "isiXhosa",
+    "st": "Sesotho",
+    "tn": "Setswana",
+    "af": "Afrikaans",
+}
+
+
+def parse_command(message: str, session: dict) -> bool:
+    if not message.startswith("/"):
+        return False
+
+    parts = message.strip().split()
+    command = parts[0].lower()
+
+    if command == "/lang" and len(parts) == 2:
+        lang_code = parts[1].lower()
+        if lang_code in LANGUAGE_NAMES:
+            session["language"] = lang_code
+            session["language_name"] = LANGUAGE_NAMES[lang_code]
+            return True
+
+    if command == "/grade" and len(parts) == 2:
+        try:
+            session["grade"] = int(parts[1])
+            return True
+        except ValueError:
+            pass
+
+    if command == "/reset":
+        session["history"] = []
+        session["current_topic"] = None
+        session["current_grade"] = None
+        session["current_subject"] = None
+        session["current_kc"] = None
+        return True
+
+    return False
 
 curriculum = CurriculumStore()
 client = TransformersClient(os.getenv("HF_MODEL", "google/gemma-4-E2B-it"))
@@ -66,18 +106,25 @@ async def process_and_reply(phone, message, message_sid):
         logger.error(f"Error in background task: {e}", exc_info=True)
 
 
+_gradio_session = {
+    "grade": 12,
+    "subject": "Mathematics",
+    "language": "en",
+    "language_name": "English",
+    "phone_hash": "gradio_demo_user",
+    "current_topic": None,
+    "current_grade": None,
+    "current_subject": None,
+    "current_kc": None,
+}
+
+
 async def chat(message, history, grade, subject, language):
-    session = {
-        "grade": int(grade),
-        "subject": subject,
-        "language": language,
-        "language_name": LANGUAGE_NAMES.get(language, "English"),
-        "phone_hash": "gradio_demo_user",
-        "current_topic": None,
-        "current_grade": None,
-        "current_subject": None,
-    }
-    response = await router.handle_message(message, session, history=history)
+    _gradio_session["grade"] = int(grade)
+    _gradio_session["subject"] = subject
+    _gradio_session["language"] = language
+    _gradio_session["language_name"] = LANGUAGE_NAMES.get(language, "English")
+    response = await router.handle_message(message, _gradio_session, history=history)
     return response
 
 
