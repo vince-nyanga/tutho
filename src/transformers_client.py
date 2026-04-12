@@ -76,8 +76,12 @@ def _extract_tool_calls(text):
         r"(?:<\|tool_call>)?call:(\w+)\{(.*?)\}<tool_call\|>", text, re.DOTALL
     ):
         # Try parsing as JSON first (handles {"key": "value"} format)
+        # Strip extra braces the model sometimes emits (e.g. {{...}})
+        stripped = args.strip()
+        while stripped.startswith("{") and stripped.endswith("}"):
+            stripped = stripped[1:-1]
         try:
-            parsed = json.loads("{" + args + "}")
+            parsed = json.loads("{" + stripped + "}")
             results.append({"name": name, "arguments": parsed})
             continue
         except (json.JSONDecodeError, ValueError):
@@ -107,6 +111,7 @@ class TransformersClient:
         return self._parse_response(raw_text)
 
     def _parse_response(self, raw_text: str) -> object:
+        raw_text = re.sub(r'<(?:think|channel)>.*?</(?:think|channel)>', '', raw_text, flags=re.DOTALL)
         tool_calls = _extract_tool_calls(raw_text)
 
         if tool_calls:
