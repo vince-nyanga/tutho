@@ -2,6 +2,7 @@ gradio
 jinja2
 openai
 transformers
+gguf
 torch
 torchvision
 accelerate

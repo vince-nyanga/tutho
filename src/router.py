@@ -57,6 +57,8 @@ class Router:
 
     @staticmethod
     def _clean_for_whatsapp(text: str) -> str:
+        # Strip leaked tool calls (e.g. "assess_response{...}" without proper tags)
+        text = re.sub(r'(?:call:)?[a-z_]\w*\{[^}]*\}(?:<tool_call\|>)?', '', text)
         # Convert **bold** to *bold* (WhatsApp style)
         text = re.sub(r'\*\*(.+?)\*\*', r'*\1*', text)
         # Remove markdown headers

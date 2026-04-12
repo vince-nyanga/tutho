@@ -1,3 +1,4 @@
+import os
 import re
 import json
 from logging import getLogger
@@ -14,19 +15,46 @@ except ImportError:
 
 _model = None
 _processor = None
+_is_gguf = False
+
+
+def _preload(model_name, gguf_file=None):
+    """Pre-download files and load tokenizer/processor at startup (CPU, no GPU needed)."""
+    global _processor, _is_gguf
+    if _processor is not None:
+        return
+    if gguf_file:
+        from huggingface_hub import hf_hub_download
+        from transformers import AutoTokenizer
+        logger.info(f"Pre-downloading GGUF file {gguf_file} from {model_name}")
+        hf_hub_download(model_name, filename=gguf_file)
+        _processor = AutoTokenizer.from_pretrained(model_name, gguf_file=gguf_file)
+        _is_gguf = True
+        logger.info("GGUF file downloaded and tokenizer loaded")
+    else:
+        from transformers import AutoProcessor
+        logger.info(f"Pre-loading processor for {model_name}")
+        _processor = AutoProcessor.from_pretrained(model_name)
+        logger.info("Processor loaded")
 
 
 @spaces.GPU
-def _run_inference(model_name, messages, tools=None, max_new_tokens=512):
-    global _model, _processor
+def _run_inference(model_name, messages, tools=None, max_new_tokens=512, gguf_file=None):
+    global _model
     if _model is None:
         import torch
-        from transformers import AutoProcessor, AutoModelForMultimodalLM
-        logger.info(f"Loading model {model_name}")
-        _model = AutoModelForMultimodalLM.from_pretrained(
-            model_name, dtype="auto", device_map="auto"
-        )
-        _processor = AutoProcessor.from_pretrained(model_name)
+        if gguf_file:
+            from transformers import AutoModelForCausalLM
+            logger.info(f"Loading GGUF model {model_name} ({gguf_file})")
+            _model = AutoModelForCausalLM.from_pretrained(
+                model_name, gguf_file=gguf_file, device_map="auto"
+            )
+        else:
+            from transformers import AutoModelForMultimodalLM
+            logger.info(f"Loading model {model_name}")
+            _model = AutoModelForMultimodalLM.from_pretrained(
+                model_name, dtype="auto", device_map="auto"
+            )
         logger.info("Model loaded")
 
     if tools:
@@ -43,7 +71,10 @@ def _run_inference(model_name, messages, tools=None, max_new_tokens=512):
             add_generation_prompt=True,
         )
 
-    inputs = _processor(text=text, return_tensors="pt").to(_model.device)
+    if _is_gguf:
+        inputs = _processor(text, return_tensors="pt").to(_model.device)
+    else:
+        inputs = _processor(text=text, return_tensors="pt").to(_model.device)
     input_len = inputs["input_ids"].shape[-1]
 
     output = _model.generate(
@@ -100,32 +131,36 @@ def _extract_tool_calls(text):
 
 
 class TransformersClient:
-    def __init__(self, model_name: str = "google/gemma-4-E4B-it"):
+    def __init__(self, model_name: str = "google/gemma-4-E4B-it", gguf_file: str = None):
         self.model_name = model_name
+        self.gguf_file = gguf_file
+        _preload(model_name, gguf_file)
 
     async def chat(self, system_prompt, messages, tools, tool_choice=None) -> object:
         full_messages = [{"role": "system", "content": system_prompt}] + messages
         raw_text = _run_inference(
             self.model_name, full_messages,
             tools=tools if tools else None,
-            max_new_tokens=2048
+            max_new_tokens=2048,
+            gguf_file=self.gguf_file,
         )
         return self._parse_response(raw_text)
 
     def _parse_response(self, raw_text: str) -> object:
-        raw_text = re.sub(r'<(?:think|channel)>.*?</(?:think|channel)>', '', raw_text, flags=re.DOTALL)
+        # Strip thinking/reasoning blocks - handles both </channel> and <channel|> closing styles
+        raw_text = re.sub(r'<(?:\|)?(?:think|channel)>.*?<(?:/)?(?:think|channel)(?:\|)?>', '', raw_text, flags=re.DOTALL)
         tool_calls = _extract_tool_calls(raw_text)
 
         if tool_calls:
             logger.info(f"Parsed tool calls: {tool_calls}")
             # Strip tool call tags from remaining text to get content
             cleaned = re.sub(r'(?:<\|tool_call>)?call:\w+\{.*?\}<tool_call\|>', '', raw_text, flags=re.DOTALL).strip()
-            for token in ["<end_of_turn>", "<eos>", "<turn|>", "<|tool_response>"]:
+            for token in ["<end_of_turn>", "<eos>", "<turn|>", "<|tool_response>", "<channel|>", "<think|>"]:
                 cleaned = cleaned.replace(token, "")
             cleaned = re.sub(r'<\|.*?\|>', '', cleaned).strip()
             return _TransformersMessage(tool_calls, cleaned if cleaned else None)
 
-        for token in ["<end_of_turn>", "<eos>", "<turn|>", "<|tool_response>"]:
+        for token in ["<end_of_turn>", "<eos>", "<turn|>", "<|tool_response>", "<channel|>", "<think|>"]:
             raw_text = raw_text.replace(token, "")
         raw_text = re.sub(r'<\|.*?\|>', '', raw_text).strip()
         return _TransformersMessage(raw_text)
