@@ -230,6 +230,7 @@ class Router:
             messages = [{"role": "user", "content": message}]
         else:
             messages = list(history)
+            messages.append({"role": "user", "content": message})
 
         response = await self.client.chat(system_prompt, messages, tools)
 
@@ -256,7 +257,8 @@ class Router:
         learning_registry = create_learning_registry(self.curriculum, phone_hash)
         tools = learning_registry.get_tools(names=["assess_response"])
 
-        messages = list(history[-4:]) if history else [{"role": "user", "content": message}]
+        messages = list(history[-6:]) if history else []
+        messages.append({"role": "user", "content": message})
 
         response = await self.client.chat(system_prompt, messages, tools)
 
