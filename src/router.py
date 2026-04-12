@@ -45,13 +45,31 @@ class Router:
 
         match intent:
             case Intent.LEARN:
-                return await self._handle_learn(message, classification, session, history)
+                reply = await self._handle_learn(message, classification, session, history)
             case Intent.ANSWER:
-                return await self._handle_answer(message, classification, session, history)
+                reply = await self._handle_answer(message, classification, session, history)
             case Intent.GREETING:
-                return await self._handle_greeting(message, classification, session)
+                reply = await self._handle_greeting(message, classification, session)
             case Intent.OFF_TOPIC:
-                return await self._handle_off_topic(message, classification, session)
+                reply = await self._handle_off_topic(message, classification, session)
+
+        return self._clean_for_whatsapp(reply) if reply else reply
+
+    @staticmethod
+    def _clean_for_whatsapp(text: str) -> str:
+        # Convert **bold** to *bold* (WhatsApp style)
+        text = re.sub(r'\*\*(.+?)\*\*', r'*\1*', text)
+        # Remove markdown headers
+        text = re.sub(r'^#{1,3}\s+', '', text, flags=re.MULTILINE)
+        # Remove code blocks
+        text = re.sub(r'```.*?```', '', text, flags=re.DOTALL)
+        # Remove inline code backticks
+        text = re.sub(r'`([^`]+)`', r'\1', text)
+        # Remove $ latex delimiters
+        text = re.sub(r'\$([^$]+)\$', r'\1', text)
+        # Convert numbered lists to plain text
+        text = re.sub(r'^(\d+)\.\s+', r'\1. ', text, flags=re.MULTILINE)
+        return text.strip()
 
     async def _classify(self, message: str, session: dict, history: list[dict] = None) -> dict:
         grade = session.get("grade", 12)
