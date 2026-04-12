@@ -18,15 +18,6 @@ from src.db import init_db, get_session, save_session, hash_phone
 
 logger = getLogger(__name__)
 
-LANGUAGE_NAMES = {
-    "en": "English",
-    "zu": "isiZulu",
-    "xh": "isiXhosa",
-    "st": "Sesotho",
-    "tn": "Setswana",
-    "af": "Afrikaans",
-}
-
 
 def parse_command(message: str, session: dict) -> bool:
     if not message.startswith("/"):
@@ -34,20 +25,6 @@ def parse_command(message: str, session: dict) -> bool:
 
     parts = message.strip().split()
     command = parts[0].lower()
-
-    if command == "/lang" and len(parts) == 2:
-        lang_code = parts[1].lower()
-        if lang_code in LANGUAGE_NAMES:
-            session["language"] = lang_code
-            session["language_name"] = LANGUAGE_NAMES[lang_code]
-            return True
-
-    if command == "/grade" and len(parts) == 2:
-        try:
-            session["grade"] = int(parts[1])
-            return True
-        except ValueError:
-            pass
 
     if command == "/reset":
         session["history"] = []
@@ -76,11 +53,7 @@ async def process_and_reply(phone, message, message_sid):
         session = get_session(phone)
 
         if parse_command(message, session):
-            reply_text = (
-                f"Updated! Grade: {session['grade']}, "
-                f"Subject: {session['subject']}, "
-                f"Language: {session['language_name']}"
-            )
+            reply_text = "Session reset! What would you like to study?"
         else:
             reply_text = await router.handle_message(
                 message, session, history=session["history"]
@@ -109,8 +82,6 @@ async def process_and_reply(phone, message, message_sid):
 _gradio_session = {
     "grade": 12,
     "subject": "Mathematics",
-    "language": "en",
-    "language_name": "English",
     "phone_hash": "gradio_demo_user",
     "current_topic": None,
     "current_grade": None,
@@ -119,28 +90,15 @@ _gradio_session = {
 }
 
 
-async def chat(message, history, grade, subject, language):
-    _gradio_session["grade"] = int(grade)
-    _gradio_session["subject"] = subject
-    _gradio_session["language"] = language
-    _gradio_session["language_name"] = LANGUAGE_NAMES.get(language, "English")
+async def chat(message, history):
     response = await router.handle_message(message, _gradio_session, history=history)
     return response
 
 
 demo = gr.ChatInterface(
     fn=chat,
-    additional_inputs=[
-        gr.Dropdown(choices=["7", "8", "9", "10", "11", "12"], value="10", label="Grade"),
-        gr.Dropdown(choices=["Mathematics", "Physical Sciences"], value="Mathematics", label="Subject"),
-        gr.Dropdown(
-            choices=[("English", "en"), ("isiZulu", "zu"), ("Sesotho", "st"),
-                     ("Setswana", "tn"), ("isiXhosa", "xh"), ("Afrikaans", "af")],
-            value="en", label="Language",
-        ),
-    ],
     title="Thuto AI",
-    description="AI tutor for South African CAPS curriculum",
+    description="AI tutor for South African Grade 12 Mathematics (CAPS curriculum)",
     type="messages",
 )
 demo.queue()

@@ -172,8 +172,6 @@ class Router:
         system_prompt = template.render(
             grade=grade,
             subject=subject,
-            language=session.get("language"),
-            language_name=session.get("language_name"),
             topic=topic,
             student_mastery=student_mastery,
         )
@@ -206,8 +204,6 @@ class Router:
         system_prompt = template.render(
             grade=grade,
             subject=subject,
-            language=session.get("language"),
-            language_name=session.get("language_name"),
             kc_code=kc_code,
         )
 
@@ -226,23 +222,13 @@ class Router:
 
     async def _handle_greeting(self, message: str, classification: dict, session: dict) -> str:
         template = self.templates.get_template("greeting.j2")
-        system_prompt = template.render(
-            session_grade=session.get("grade"),
-            session_subject=session.get("subject"),
-            language=session.get("language"),
-            language_name=session.get("language_name"),
-        )
+        system_prompt = template.render()
         response = await self.client.chat(system_prompt, [{"role": "user", "content": message}], tools=[])
         return response.content
 
     async def _handle_off_topic(self, message: str, classification: dict, session: dict) -> str:
         template = self.templates.get_template("off_topic.j2")
-        system_prompt = template.render(
-            session_grade=session.get("grade"),
-            session_subject=session.get("subject"),
-            language=session.get("language"),
-            language_name=session.get("language_name"),
-        )
+        system_prompt = template.render()
         response = await self.client.chat(system_prompt, [{"role": "user", "content": message}], tools=[])
         return response.content
 

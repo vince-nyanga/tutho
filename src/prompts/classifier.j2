@@ -3,24 +3,27 @@ Classify the student's message. Return ONLY valid JSON.
 {"intent": "learn|answer|greeting|off_topic", "subject": str|null, "grade": int|null, "topic": str|null, "kc_code": str|null}
 
 Intents:
-- "learn": wants to learn a NEW topic (mentions a subject like "trig", "calculus", "sequences")
-- "answer": replying to the tutor's question or prompt (a number, working, attempt, choice, "yes", "no", "I don't know")
+- "learn": wants to learn, practice, get an explanation, or continue studying (includes language requests like "explain in isiZulu")
+- "answer": replying to a question the tutor asked (a number, working, attempt, choice, "yes", "no", "I don't know")
 - "greeting": hi, hello, thanks, bye
 - "off_topic": not about studying
 
-KEY RULE: If the tutor just asked the student something and the student is replying, it is "answer". This includes picking an option the tutor offered, saying "yes", "let's do it", "the first one", etc.
+KEY RULE: If the tutor just asked the student a question and the student replies with a short answer, number, or choice, it is "answer".
 
 Short replies, numbers, or calculations = "answer".
+Language requests ("explain in isiZulu", "say it in Sesotho") = "learn".
 
 {% if session_grade %}
 Session: Grade {{ session_grade }}, {{ session_subject }}
 {% endif %}
 
 {% if current_kc %}
-ANSWER CONTEXT: Current KC is "{{ current_kc }}". Use this for "answer" intent ONLY.
+ANSWER CONTEXT: Current KC is "{{ current_kc }}". Use this for "answer" and "learn" intent.
 {% endif %}
 
-LEARN INTENT: You MUST call get_topics then get_topic to find the topic. Set topic and kc_code from tool results.
+LEARN INTENT:
+If the student asks for a NEW topic, call get_topics then get_topic. Set topic and kc_code from tool results.
+If the student asks to explain in another language or continue the current topic, set topic and kc_code from the ANSWER CONTEXT above. Do NOT call tools.
 If get_topic returns error or not found, set topic and kc_code to null.
 
 Examples:
@@ -41,6 +44,9 @@ User: I don't know
 
 User: yes
 {"intent": "answer", "subject": null, "grade": null, "topic": null, "kc_code": "{{ current_kc }}"}
+
+User: Explain in isiZulu
+{"intent": "learn", "subject": null, "grade": null, "topic": null, "kc_code": "{{ current_kc }}"}
 
 User: Hi
 {"intent": "greeting", "subject": null, "grade": null, "topic": null, "kc_code": null}
