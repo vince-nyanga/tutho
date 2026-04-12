@@ -101,6 +101,10 @@ class Router:
             logger.info(f"Classifier tools: {[tc.function.name for tc in response.tool_calls]}")
             result = await self._execute_tool_loop(response, prompt, messages, tools, registry)
             classification = self._extract_json(result)
+            # If the model returned tutoring text instead of JSON after tool calls,
+            # build classification from the tool call history
+            if classification.get("intent") == "greeting" and not classification.get("topic"):
+                classification = self._classify_from_tool_history(messages, grade, subject)
         else:
             classification = self._extract_json(response.content)
 
@@ -113,6 +117,28 @@ class Router:
             session["current_topic"] = classification["topic"]
 
         return classification
+
+    @staticmethod
+    def _classify_from_tool_history(messages, grade, subject):
+        """Extract classification from tool call results when the model skips JSON output."""
+        for msg in reversed(messages):
+            if msg.get("role") != "tool":
+                continue
+            try:
+                data = json.loads(msg["content"])
+            except (json.JSONDecodeError, TypeError):
+                continue
+            # Look for a get_topic result (has 'code' and 'knowledge_components')
+            if "code" in data and "knowledge_components" in data:
+                kcs = data.get("knowledge_components", [])
+                return {
+                    "intent": "learn",
+                    "subject": subject,
+                    "grade": grade,
+                    "topic": data["code"],
+                    "kc_code": kcs[0]["code"] if kcs else None,
+                }
+        return {"intent": "learn", "subject": subject, "grade": grade, "topic": None, "kc_code": None}
 
     def _extract_json(self, text: str) -> dict:
         if not text:
