@@ -61,7 +61,6 @@ class Router:
         prompt = template.render(
             session_grade=grade,
             session_subject=subject,
-            current_topic=session.get("current_topic"),
             current_kc=session.get("current_kc"),
         )
 
@@ -109,7 +108,8 @@ class Router:
 
     async def _handle_learn(self, message: str, classification: dict, session: dict, history: list[dict] = None) -> str:
         topic = None
-        topic_name = classification.get("topic") or session.get("current_topic")
+        classified_topic = classification.get("topic")
+        topic_name = classified_topic or session.get("current_topic")
         grade = classification.get("grade") or session.get("current_grade", 12)
         subject = classification.get("subject") or session.get("current_subject", "Mathematics")
 
@@ -124,6 +124,19 @@ class Router:
                 subject=subject,
                 topic_query=topic_name
             )
+
+        # User asked for a specific topic but it wasn't found
+        if classified_topic and not topic:
+            available = self.curriculum.get_topic_list(grade, subject)
+            topic_list = "\n".join(f"- {t['name']}" for t in available[:10])
+            return (
+                f"Sorry, I couldn't find *{classified_topic}* in the Grade {grade} {subject} curriculum.\n\n"
+                f"Here are the topics I can help with:\n{topic_list}\n\n"
+                f"Which one would you like to work on?"
+            )
+
+        # Detect topic change before updating session
+        topic_changed = topic and session.get("current_topic") != topic_name
 
         if topic:
             session["current_topic"] = topic_name
@@ -161,7 +174,11 @@ class Router:
         learning_registry = create_learning_registry(self.curriculum, phone_hash)
         tools = learning_registry.get_tools(names=["get_topics", "get_topic"])
 
-        messages = list(history) if history else [{"role": "user", "content": message}]
+        # If the topic changed, start fresh so old conversation doesn't bias the model
+        if topic_changed or not history:
+            messages = [{"role": "user", "content": message}]
+        else:
+            messages = list(history)
 
         response = await self.client.chat(system_prompt, messages, tools)
 

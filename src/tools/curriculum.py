@@ -1,4 +1,5 @@
 import json
+import re
 from pathlib import Path
 from dataclasses import dataclass
 
@@ -14,12 +15,43 @@ class TopicResult:
     common_misconceptions: list[str] | None = None
 
 
+_STOP_WORDS = frozenset({
+    "the", "and", "for", "are", "with", "that", "this", "from", "not",
+    "but", "you", "all", "can", "has", "was", "one", "our", "out",
+    "use", "her", "each", "which", "their", "will", "other", "about",
+    "many", "then", "them", "these", "some", "would", "make", "like",
+    "been", "have", "into", "more", "when", "very", "what", "how",
+    "need", "help", "want", "learn", "study", "teach", "know",
+})
+
+
+def _tokenize(text: str) -> set[str]:
+    words = set(re.findall(r'[a-z]{3,}', text.lower()))
+    return words - _STOP_WORDS
+
+
+def _trigrams(text: str) -> set[str]:
+    """Generate trigrams from text, similar to Postgres pg_trgm."""
+    t = f"  {text.lower()}  "
+    return {t[i:i+3] for i in range(len(t) - 2)}
+
+
+def _trigram_similarity(a: str, b: str) -> float:
+    """Compute trigram similarity (0-1), like Postgres similarity()."""
+    ta, tb = _trigrams(a), _trigrams(b)
+    if not ta or not tb:
+        return 0.0
+    return len(ta & tb) / len(ta | tb)
+
+
 class CurriculumStore:
     def __init__(self, curriculum_dir: str = "curriculum"):
         self._nodes: dict[str, dict] = {}
         self._kcs: dict[str, dict] = {}
         self._data: list[dict] = []
         self._grade_subject_nodes: dict[tuple[int, str], list[str]] = {}
+        self._node_keywords: dict[str, set[str]] = {}
+        self._node_search_text: dict[str, str] = {}
         self.load(curriculum_dir)
 
     def load(self, curriculum_dir: str):
@@ -58,12 +90,14 @@ class CurriculumStore:
 
         for code in node_codes:
             node = self._nodes[code]
+            if not node.get("knowledge_components"):
+                continue
             score = self._score_match(node, query_words, query_lower)
             if score > best_score:
                 best_match = node
                 best_score = score
 
-        if not best_match:
+        if not best_match or best_score < 7:
             return None
 
         return self._node_to_result(best_match)
@@ -141,51 +175,72 @@ class CurriculumStore:
             if grade_subject_key:
                 self._grade_subject_nodes[grade_subject_key].append(node["code"])
 
+            keywords = _tokenize(node["name"])
+            search_parts = [node["name"]]
+            if parent_name:
+                keywords |= _tokenize(parent_name)
+                search_parts.append(parent_name)
+
             for kc in node.get("knowledge_components", []):
                 self._kcs[kc["code"]] = kc
                 kc["_node_code"] = node["code"]
                 kc["_parent_name"] = node.get("name")
+                keywords |= _tokenize(kc.get("description", ""))
+                keywords |= _tokenize(kc.get("curriculum_statement", ""))
+                search_parts.append(kc.get("description", ""))
+                search_parts.append(kc.get("curriculum_statement", ""))
+                for m in kc.get("common_misconceptions", []):
+                    keywords |= _tokenize(m)
+                    search_parts.append(m)
+
+            self._node_keywords[node["code"]] = keywords
+            self._node_search_text[node["code"]] = " ".join(search_parts)
 
             if "children" in node:
                 self._index_nodes(node["children"], node.get("name"), grade_subject_key)
 
-    def _score_match(self, node: dict, query_words: list[str], query_lower: str) -> int:
-        score = 0
+    def _score_match(self, node: dict, query_words: list[str], query_lower: str) -> float:
         name_lower = node["name"].lower()
+        code = node["code"]
 
-        # Exact name match gets a big bonus
+        # Exact name match
         if query_lower == name_lower:
             return 100
 
-        # Full query appears as substring of name
-        if query_lower in name_lower:
-            score += 10
+        query_tokens = _tokenize(query_lower)
+        if not query_tokens:
+            return 0
 
-        # Name appears as substring of query
-        if name_lower in query_lower:
-            score += 8
+        # Trigram similarity against name (high weight, like pg_trgm)
+        name_sim = _trigram_similarity(query_lower, name_lower)
 
-        # Individual word matches in name
-        for word in query_words:
-            if len(word) <= 2:
-                continue
-            if word in name_lower:
-                score += 3
-            # Partial match: "sequence" matches "sequences"
-            elif any(word in part or part in word for part in name_lower.split()):
-                score += 2
+        # Trigram similarity against parent unit name (students often use unit-level terms)
+        parent_name = (node.get("parent_name") or "").lower()
+        parent_sim = _trigram_similarity(query_lower, parent_name) if parent_name else 0
 
-        # Prefer nodes that have knowledge components (topics over units)
-        if node.get("knowledge_components"):
-            score += 5
+        # Trigram similarity against full search text (description, curriculum_statement, etc.)
+        search_text = self._node_search_text.get(code, "")
+        text_sim = _trigram_similarity(query_lower, search_text)
 
-        # KC description matches (lower weight)
-        for kc in node.get("knowledge_components", []):
-            desc_lower = kc.get("description", "").lower()
-            for word in query_words:
-                if len(word) <= 2:
-                    continue
-                if word in desc_lower:
-                    score += 1
+        # Token overlap for exact word matches
+        name_tokens = _tokenize(name_lower)
+        node_keywords = self._node_keywords.get(code, set())
+
+        name_token_hits = len(query_tokens & name_tokens)
+        keyword_token_hits = len(query_tokens & node_keywords)
+
+        # Weighted combination
+        score = (
+            name_sim * 40           # trigram match on topic name
+            + parent_sim * 20       # trigram match on parent unit name
+            + text_sim * 10         # trigram match on descriptions
+            + name_token_hits * 8   # exact word in name
+            + keyword_token_hits * 3  # exact word in descriptions/statements
+        )
+
+        # Penalize when no query tokens appear in the node's indexed text.
+        # Prevents spurious matches from coincidental trigram overlap.
+        if not (query_tokens & node_keywords):
+            score *= 0.3
 
         return score

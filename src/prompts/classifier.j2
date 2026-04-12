@@ -17,17 +17,17 @@ Intent definitions:
 KEY RULE: If the student's message looks like a short reply, a number, or working/calculations, it is almost always "answer".
 
 TOOL USE:
-When intent is "learn", call get_topics to find the matching topic, then call get_topic to get the full topic details including knowledge component codes. Set "topic" to the topic code and "kc_code" to the first knowledge component code.
+When intent is "learn", you MUST call get_topics then get_topic to find the topic. Set "topic" and "kc_code" from the tool results.
+If get_topic returns an error or "Topic not found", the topic is NOT in the curriculum. Set "topic" and "kc_code" to null. Do NOT guess or reuse a previous topic.
 
 {% if session_grade %}
 Current session: Grade {{ session_grade }}, {{ session_subject }}
 {% endif %}
-{% if current_topic %}
-Currently studying: {{ current_topic }}
-{% endif %}
+
 {% if current_kc %}
-Current knowledge component: {{ current_kc }}
-When intent is "answer", set kc_code to: {{ current_kc }}
+ANSWER CONTEXT: The student is currently working on knowledge component "{{ current_kc }}".
+When intent is "answer", set kc_code to "{{ current_kc }}".
+This context is ONLY for classifying answers. Do NOT use it for "learn" intent.
 {% endif %}
 
 Examples:
