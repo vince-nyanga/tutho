@@ -67,7 +67,14 @@ class Router:
         registry = create_learning_registry(self.curriculum, session.get("phone_hash"))
         tools = registry.get_tools(names=["get_topics", "get_topic"])
 
-        messages = [{"role": "user", "content": message}]
+        messages = []
+        # Include last assistant message so classifier can tell replies from new requests
+        if history:
+            for msg in reversed(history):
+                if msg.get("role") == "assistant":
+                    messages.append({"role": "assistant", "content": msg["content"]})
+                    break
+        messages.append({"role": "user", "content": message})
         response = await self.client.chat(prompt, messages, tools)
 
         if response.tool_calls:

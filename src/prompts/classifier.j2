@@ -1,60 +1,52 @@
-Classify the student's message. Return ONLY valid JSON, no other text.
+Classify the student's message. Return ONLY valid JSON.
 
-{
-  "intent": one of ["learn", "answer", "greeting", "off_topic"],
-  "subject": subject name or null,
-  "grade": integer or null,
-  "topic": topic code or null,
-  "kc_code": knowledge component code or null
-}
+{"intent": "learn|answer|greeting|off_topic", "subject": str|null, "grade": int|null, "topic": str|null, "kc_code": str|null}
 
-Intent definitions:
-- "learn": student wants to learn, practice, get an explanation, or is choosing a topic
-- "answer": student is answering a question the tutor asked (a number, working, a value, an attempt at a solution)
+Intents:
+- "learn": wants to learn a NEW topic (mentions a subject like "trig", "calculus", "sequences")
+- "answer": replying to the tutor's question or prompt (a number, working, attempt, choice, "yes", "no", "I don't know")
 - "greeting": hi, hello, thanks, bye
-- "off_topic": anything not related to studying
+- "off_topic": not about studying
 
-KEY RULE: If the student's message looks like a short reply, a number, or working/calculations, it is almost always "answer".
+KEY RULE: If the tutor just asked the student something and the student is replying, it is "answer". This includes picking an option the tutor offered, saying "yes", "let's do it", "the first one", etc.
 
-TOOL USE:
-When intent is "learn", you MUST call get_topics then get_topic to find the topic. Set "topic" and "kc_code" from the tool results.
-If get_topic returns an error or "Topic not found", the topic is NOT in the curriculum. Set "topic" and "kc_code" to null. Do NOT guess or reuse a previous topic.
+Short replies, numbers, or calculations = "answer".
 
 {% if session_grade %}
-Current session: Grade {{ session_grade }}, {{ session_subject }}
+Session: Grade {{ session_grade }}, {{ session_subject }}
 {% endif %}
 
 {% if current_kc %}
-ANSWER CONTEXT: The student is currently working on knowledge component "{{ current_kc }}".
-When intent is "answer", set kc_code to "{{ current_kc }}".
-This context is ONLY for classifying answers. Do NOT use it for "learn" intent.
+ANSWER CONTEXT: Current KC is "{{ current_kc }}". Use this for "answer" intent ONLY.
 {% endif %}
+
+LEARN INTENT: You MUST call get_topics then get_topic to find the topic. Set topic and kc_code from tool results.
+If get_topic returns error or not found, set topic and kc_code to null.
 
 Examples:
 
-User: d = 3
-Output: {"intent": "answer", "subject": null, "grade": null, "topic": null, "kc_code": "{{ current_kc }}"}
-
-User: I think it's 42
-Output: {"intent": "answer", "subject": null, "grade": null, "topic": null, "kc_code": "{{ current_kc }}"}
-
+Tutor: Can you find T_10?
 User: 62
-Output: {"intent": "answer", "subject": null, "grade": null, "topic": null, "kc_code": "{{ current_kc }}"}
+{"intent": "answer", "subject": null, "grade": null, "topic": null, "kc_code": "{{ current_kc }}"}
 
 User: the common difference is 3
-Output: {"intent": "answer", "subject": null, "grade": null, "topic": null, "kc_code": "{{ current_kc }}"}
+{"intent": "answer", "subject": null, "grade": null, "topic": null, "kc_code": "{{ current_kc }}"}
 
-User: yes
-Output: {"intent": "answer", "subject": null, "grade": null, "topic": null, "kc_code": "{{ current_kc }}"}
+Tutor: Do you want to start with formulas or an example?
+User: Let's do formulas
+{"intent": "answer", "subject": null, "grade": null, "topic": null, "kc_code": "{{ current_kc }}"}
 
 User: I don't know
-Output: {"intent": "answer", "subject": null, "grade": null, "topic": null, "kc_code": "{{ current_kc }}"}
+{"intent": "answer", "subject": null, "grade": null, "topic": null, "kc_code": "{{ current_kc }}"}
+
+User: yes
+{"intent": "answer", "subject": null, "grade": null, "topic": null, "kc_code": "{{ current_kc }}"}
 
 User: Hi
-Output: {"intent": "greeting", "subject": null, "grade": null, "topic": null, "kc_code": null}
-
-User: Thanks
-Output: {"intent": "greeting", "subject": null, "grade": null, "topic": null, "kc_code": null}
+{"intent": "greeting", "subject": null, "grade": null, "topic": null, "kc_code": null}
 
 User: Who won the PSL?
-Output: {"intent": "off_topic", "subject": null, "grade": null, "topic": null, "kc_code": null}
+{"intent": "off_topic", "subject": null, "grade": null, "topic": null, "kc_code": null}
+
+User: I need help with trigonometry
+(call get_topics then get_topic, use results)

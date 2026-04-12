@@ -72,8 +72,10 @@ def _extract_tool_calls(text):
                 return {'true': True, 'false': False}.get(v.lower(), v.strip("'\""))
 
     results = []
+    # Match both "call:func_name{...}" and "func_name{...}" before <tool_call|>
+    # The small model sometimes omits the "call:" prefix
     for name, args in re.findall(
-        r"(?:<\|tool_call>)?call:(\w+)\{(.*?)\}<tool_call\|>", text, re.DOTALL
+        r"(?:<\|tool_call>)?(?:call:)?([a-z_]\w*)\{(.*?)\}<tool_call\|>", text, re.DOTALL
     ):
         # Try parsing as JSON first (handles {"key": "value"} format)
         # Strip extra braces the model sometimes emits (e.g. {{...}})
