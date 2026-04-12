@@ -32,18 +32,6 @@ def init_router():
 router = init_router()
 
 with st.sidebar:
-    st.header("Student Profile")
-    grade = st.selectbox("Grade", [10, 11, 12], index=2)
-    subject = st.selectbox("Subject", ["Mathematics"])
-    language = st.selectbox("Language", [
-        ("English", "en"),
-        ("IsiZulu", "zu"),
-        ("IsiXhosa", "xh"),
-        ("Sesotho", "st"),
-        ("Setswana", "tn"),
-        ("Afrikaans", "af"),
-    ])
-
     if st.button("Clear Chat"):
         st.session_state["messages"] = []
         st.rerun()
@@ -53,10 +41,8 @@ if "messages" not in st.session_state:
 
 if "user_session" not in st.session_state:
     st.session_state.user_session = {
-        "grade": grade,
-        "subject": subject,
-        "language": language[1],
-        "language_name": language[0],
+        "grade": 12,
+        "subject": "Mathematics",
         "current_topic": None,
         "phone_hash": "local_dev_user",
     }
