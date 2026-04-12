@@ -37,14 +37,7 @@ def parse_command(message: str, session: dict) -> bool:
     return False
 
 curriculum = CurriculumStore()
-_gguf_quant = (os.getenv("HF_GGUF_QUANT") or "").strip() or None
-_model_name = os.getenv("HF_MODEL", "google/gemma-4-E2B-it").strip()
-_gguf_file = None
-if _gguf_quant:
-    # Derive filename from repo name: "unsloth/gemma-4-26B-A4B-it-GGUF" -> "gemma-4-26B-A4B-it-UD-Q4_K_M.gguf"
-    _gguf_file = _model_name.split("/")[-1].replace("-GGUF", "") + f"-UD-{_gguf_quant}.gguf"
-
-client = TransformersClient(_model_name, gguf_file=_gguf_file)
+client = TransformersClient(os.getenv("HF_MODEL", "google/gemma-4-E2B-it"))
 router = Router(client, curriculum)
 
 init_db()

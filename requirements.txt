@@ -2,7 +2,6 @@ gradio
 jinja2
 openai
 transformers
-gguf==0.18.0
 torch
 torchvision
 accelerate

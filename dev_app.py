@@ -16,12 +16,7 @@ def get_model_client():
     backend = os.getenv("MODEL_BACKEND", "ollama")
     if backend == "transformers":
         from src.transformers_client import TransformersClient
-        model_name = os.getenv("HF_MODEL", "google/gemma-4-E4B-it")
-        gguf_quant = os.getenv("HF_GGUF_QUANT")
-        gguf_file = None
-        if gguf_quant:
-            gguf_file = model_name.split("/")[-1].replace("-GGUF", "") + f"-UD-{gguf_quant}.gguf"
-        return TransformersClient(model_name, gguf_file=gguf_file)
+        return TransformersClient(os.getenv("HF_MODEL", "google/gemma-4-E4B-it"))
     from src.local_client import LocalClient
     return LocalClient(os.getenv("OLLAMA_MODEL", "gemma4:e4b"))
 

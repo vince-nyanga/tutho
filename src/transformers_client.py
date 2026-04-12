@@ -1,4 +1,3 @@
-import os
 import re
 import json
 from logging import getLogger
@@ -15,46 +14,31 @@ except ImportError:
 
 _model = None
 _processor = None
-_is_gguf = False
 
 
-def _preload(model_name, gguf_file=None):
-    """Pre-download files and load tokenizer/processor at startup (CPU, no GPU needed)."""
-    global _processor, _is_gguf
+def _preload(model_name):
+    """Pre-download model files and load processor at startup (CPU, no GPU needed)."""
+    global _processor
     if _processor is not None:
         return
-    if gguf_file:
-        from huggingface_hub import hf_hub_download
-        from transformers import AutoTokenizer
-        logger.info(f"Pre-downloading GGUF file {gguf_file} from {model_name}")
-        hf_hub_download(model_name, filename=gguf_file)
-        _processor = AutoTokenizer.from_pretrained(model_name, gguf_file=gguf_file)
-        _is_gguf = True
-        logger.info("GGUF file downloaded and tokenizer loaded")
-    else:
-        from transformers import AutoProcessor
-        logger.info(f"Pre-loading processor for {model_name}")
-        _processor = AutoProcessor.from_pretrained(model_name)
-        logger.info("Processor loaded")
+    from huggingface_hub import snapshot_download
+    from transformers import AutoProcessor
+    logger.info(f"Pre-downloading model {model_name}")
+    snapshot_download(model_name)
+    _processor = AutoProcessor.from_pretrained(model_name)
+    logger.info("Model downloaded and processor loaded")
 
 
 @spaces.GPU
-def _run_inference(model_name, messages, tools=None, max_new_tokens=512, gguf_file=None):
+def _run_inference(model_name, messages, tools=None, max_new_tokens=512):
     global _model
     if _model is None:
         import torch
-        if gguf_file:
-            from transformers import AutoModelForCausalLM
-            logger.info(f"Loading GGUF model {model_name} ({gguf_file})")
-            _model = AutoModelForCausalLM.from_pretrained(
-                model_name, gguf_file=gguf_file, device_map="auto"
-            )
-        else:
-            from transformers import AutoModelForMultimodalLM
-            logger.info(f"Loading model {model_name}")
-            _model = AutoModelForMultimodalLM.from_pretrained(
-                model_name, dtype="auto", device_map="auto"
-            )
+        from transformers import AutoModelForMultimodalLM
+        logger.info(f"Loading model {model_name}")
+        _model = AutoModelForMultimodalLM.from_pretrained(
+            model_name, dtype="auto", device_map="auto"
+        )
         logger.info("Model loaded")
 
     if tools:
@@ -71,10 +55,7 @@ def _run_inference(model_name, messages, tools=None, max_new_tokens=512, gguf_fi
             add_generation_prompt=True,
         )
 
-    if _is_gguf:
-        inputs = _processor(text, return_tensors="pt").to(_model.device)
-    else:
-        inputs = _processor(text=text, return_tensors="pt").to(_model.device)
+    inputs = _processor(text=text, return_tensors="pt").to(_model.device)
     input_len = inputs["input_ids"].shape[-1]
 
     output = _model.generate(
@@ -131,10 +112,9 @@ def _extract_tool_calls(text):
 
 
 class TransformersClient:
-    def __init__(self, model_name: str = "google/gemma-4-E4B-it", gguf_file: str = None):
+    def __init__(self, model_name: str = "google/gemma-4-E4B-it"):
         self.model_name = model_name
-        self.gguf_file = gguf_file
-        _preload(model_name, gguf_file)
+        _preload(model_name)
 
     async def chat(self, system_prompt, messages, tools, tool_choice=None) -> object:
         full_messages = [{"role": "system", "content": system_prompt}] + messages
@@ -142,7 +122,6 @@ class TransformersClient:
             self.model_name, full_messages,
             tools=tools if tools else None,
             max_new_tokens=2048,
-            gguf_file=self.gguf_file,
         )
         return self._parse_response(raw_text)
 
