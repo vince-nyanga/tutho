@@ -1,6 +1,9 @@
+import inspect
 import json
-from typing import Callable
-from pydantic import BaseModel
+from typing import Callable, get_type_hints
+
+from pydantic import create_model
+from pydantic.fields import FieldInfo
 
 
 class ToolRegistry:
@@ -8,14 +11,30 @@ class ToolRegistry:
         self._tools: dict[str, dict] = {}
         self._handlers: dict[str, Callable] = {}
 
-    def register(self, tool_name: str, description: str, params_model: type[BaseModel], handler: Callable):
+    def register(self, tool_name: str, handler: Callable):
+        hints = get_type_hints(handler, include_extras=True)
+        sig = inspect.signature(handler)
+        fields = {}
+        for name, param in sig.parameters.items():
+            annotation = hints.get(name)
+            if hasattr(annotation, "__metadata__"):
+                base_type = annotation.__args__[0]
+                field_info = next(
+                    (m for m in annotation.__metadata__ if isinstance(m, FieldInfo)),
+                    ...,
+                )
+                fields[name] = (base_type, field_info)
+            else:
+                fields[name] = (annotation, ...)
+
+        model = create_model(f"{tool_name}_params", **fields)
         self._tools[tool_name] = {
             "type": "function",
             "function": {
                 "name": tool_name,
-                "description": description,
-                "parameters": params_model.model_json_schema(),
-            }
+                "description": inspect.getdoc(handler) or "",
+                "parameters": model.model_json_schema(),
+            },
         }
         self._handlers[tool_name] = handler
 

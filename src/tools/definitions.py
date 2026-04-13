@@ -1,41 +1,40 @@
 from dataclasses import asdict
-from pydantic import BaseModel, Field
+from typing import Annotated
+
+from pydantic import Field
 
 from src.tools.curriculum import CurriculumStore
 from src.tools.registry import ToolRegistry
 from src.db import update_mastery
 
 
-class GetTopicsParams(BaseModel):
-    grade: int = Field(..., description="Grade level (e.g. 12)")
-    subject: str = Field(..., description="Subject name (e.g. Mathematics)")
-
-
-class GetTopicParams(BaseModel):
-    grade: int = Field(..., description="Grade level")
-    subject: str = Field(..., description="Subject name")
-    topic_query: str = Field(..., description="What the student is asking about")
-
-
-class AssessResponseParams(BaseModel):
-    kc_code: str = Field(..., description="The knowledge component code being assessed")
-    is_correct: bool = Field(..., description="Whether the student's response was correct")
-
-
 def create_learning_registry(curriculum: CurriculumStore, phone_hash: str = None) -> ToolRegistry:
     registry = ToolRegistry()
 
-    def handle_get_topics(grade, subject):
+    def handle_get_topics(
+        grade: Annotated[int, Field(description="Grade level (e.g. 12)")],
+        subject: Annotated[str, Field(description="Subject name (e.g. Mathematics)")],
+    ):
+        """Look up what topics are available in the CAPS curriculum."""
         topics = curriculum.get_topic_list(grade, subject)
         if not topics:
             return {"error": "No topics found for this grade and subject"}
         return {"topics": [{"name": t["name"], "code": t["code"]} for t in topics]}
 
-    def handle_get_topic(grade, subject, topic_query):
+    def handle_get_topic(
+        grade: Annotated[int, Field(description="Grade level")],
+        subject: Annotated[str, Field(description="Subject name")],
+        topic_query: Annotated[str, Field(description="What the student is asking about")],
+    ):
+        """Fetch full details for a specific topic including teaching notes, misconceptions, and knowledge components."""
         result = curriculum.get_topic(grade, subject, topic_query)
         return asdict(result) if result else {"error": "Topic not found"}
 
-    def handle_assess_response(kc_code, is_correct):
+    def handle_assess_response(
+        kc_code: Annotated[str, Field(description="The knowledge component code being assessed")],
+        is_correct: Annotated[bool, Field(description="Whether the student's response was correct")],
+    ):
+        """Record whether the student's answer was correct. This updates their mastery score."""
         if not phone_hash:
             return {"error": "No student session available"}
         kc = curriculum.get_kc_by_code(kc_code)
@@ -51,25 +50,8 @@ def create_learning_registry(curriculum: CurriculumStore, phone_hash: str = None
             "correct": mastery.correct,
         }
 
-    registry.register(
-        tool_name="get_topics",
-        description="Look up what topics are available in the CAPS curriculum.",
-        params_model=GetTopicsParams,
-        handler=handle_get_topics,
-    )
-
-    registry.register(
-        tool_name="get_topic",
-        description="Fetch full details for a specific topic including teaching notes, misconceptions, and knowledge components.",
-        params_model=GetTopicParams,
-        handler=handle_get_topic,
-    )
-
-    registry.register(
-        tool_name="assess_response",
-        description="Record whether the student's answer was correct. This updates their mastery score.",
-        params_model=AssessResponseParams,
-        handler=handle_assess_response,
-    )
+    registry.register("get_topics", handle_get_topics)
+    registry.register("get_topic", handle_get_topic)
+    registry.register("assess_response", handle_assess_response)
 
     return registry
