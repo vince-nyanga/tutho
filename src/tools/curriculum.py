@@ -3,6 +3,7 @@ import re
 from pathlib import Path
 from dataclasses import dataclass
 
+
 @dataclass
 class TopicResult:
     code: str
@@ -52,12 +53,10 @@ class CurriculumStore:
         self._grade_subject_nodes: dict[tuple[int, str], list[str]] = {}
         self._node_keywords: dict[str, set[str]] = {}
         self._node_search_text: dict[str, str] = {}
-        self.load(curriculum_dir)
+        self._load(curriculum_dir)
 
-    def load(self, curriculum_dir: str):
+    def _load(self, curriculum_dir: str):
         for path in Path(curriculum_dir).glob("*.json"):
-            if path.name == "schema.json":
-                continue
             with open(path, "r") as f:
                 data = json.load(f)
                 self._data.append(data)
@@ -75,11 +74,11 @@ class CurriculumStore:
         if not node_codes:
             return None
 
-        # Direct code match first
+        # Direct code match — only valid if the node has KCs (i.e. it's a topic, not a unit)
         query_upper = topic_query.strip().upper()
         if query_upper in self._nodes:
             node = self._nodes[query_upper]
-            if query_upper in node_codes:
+            if query_upper in node_codes and node.get("knowledge_components"):
                 return self._node_to_result(node)
 
         query_lower = topic_query.lower()
@@ -90,8 +89,6 @@ class CurriculumStore:
 
         for code in node_codes:
             node = self._nodes[code]
-            if not node.get("knowledge_components"):
-                continue
             score = self._score_match(node, query_words, query_lower)
             if score > best_score:
                 best_match = node
@@ -138,15 +135,10 @@ class CurriculumStore:
     def get_topic_list(self, grade: int, subject: str) -> list[dict]:
         key = (grade, subject)
         node_codes = self._grade_subject_nodes.get(key, [])
-        topics = []
-        for code in node_codes:
-            node = self._nodes[code]
-            if node.get("knowledge_components"):
-                topics.append({
-                    "code": code,
-                    "name": node["name"],
-                })
-        return topics
+        return [
+            {"code": code, "name": self._nodes[code]["name"]}
+            for code in node_codes
+        ]
 
     def _node_to_result(self, node: dict) -> TopicResult:
         return TopicResult(
@@ -171,8 +163,14 @@ class CurriculumStore:
     def _index_nodes(self, nodes: list[dict], parent_name: str | None = None, grade_subject_key: tuple = None):
         for node in nodes:
             node["parent_name"] = parent_name
+
+            # Always register in the node lookup for direct code access
             self._nodes[node["code"]] = node
-            if grade_subject_key:
+
+            # Only add to the searchable index if this node has KCs (i.e. it's a topic, not a unit).
+            # This prevents unit-level nodes from polluting the search index and ensures
+            # get_topic() can never return a hollow TopicResult with empty KCs.
+            if grade_subject_key and node.get("knowledge_components"):
                 self._grade_subject_nodes[grade_subject_key].append(node["code"])
 
             keywords = _tokenize(node["name"])
