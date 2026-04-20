@@ -58,7 +58,12 @@ class CurriculumStore:
     def _load(self, curriculum_dir: str):
         for path in Path(curriculum_dir).glob("*.json"):
             with open(path, "r") as f:
-                data = json.load(f)
+                try:
+                    data = json.load(f)
+                except json.JSONDecodeError:
+                    continue
+                if "grade" not in data or "subject" not in data:
+                    continue
                 self._data.append(data)
                 grade = data["grade"]
                 subject = data["subject"]
